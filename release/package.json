@@ -1,0 +1,24 @@
+{
+	"name": "ionide-paket",
+	"version": "0.0.1",
+	"publisher": "Ionide",
+	"engines": {
+		"vscode": "*"
+	},
+	"main": "./paket",
+	"contributes": {
+		"commands": [{
+			"command": "paket.paketInit",
+			"title": "Paket: Init"
+		}],
+		"outputChannels": [
+			"Paket"
+		]
+	},
+	"devDependencies": {
+		"vscode": "*"
+	},
+	"dependencies": {
+		"path": "*"
+	}
+}
