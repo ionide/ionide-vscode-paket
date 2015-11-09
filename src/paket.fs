@@ -27,7 +27,7 @@ module PaketService =
             (VSCode.getPluginPath "ionide-paket")+ @"/bin/paket.bootstrapper.exe"
 
     let private spawnPaket cmd =
-        let outputChannel = window.Globals.getOutputChannel "Paket"
+        let outputChannel = window.Globals.createOutputChannel "Paket"
         outputChannel.clear ()
         let proc = Process.spawnWithNotification location "mono" cmd outputChannel
         proc.on("exit",unbox<Function>(fun (code : string) ->
@@ -53,13 +53,13 @@ module PaketService =
 type Paket() =
     member x.activate(state:obj) =
         PaketService.UpdatePaketSilent () |> ignore
-        commands.Globals.registerCommand("paket.Init", PaketService.Init |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.Install", PaketService.Install |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.Update", PaketService.Update |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.Outdated", PaketService.Outdated |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.Restore", PaketService.Restore |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.AutoRestoreOn", PaketService.AutoRestoreOn |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.AutoRestoreOff", PaketService.AutoRestoreOff |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.ConvertFromNuget", PaketService.ConvertFromNuget |> unbox<CommandCallback>) |> ignore
-        commands.Globals.registerCommand("paket.Simplify", PaketService.Simplify |> unbox<CommandCallback>) |> ignore
+        commands.Globals.registerCommand("paket.Init", PaketService.Init |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.Install", PaketService.Install |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.Update", PaketService.Update |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.Outdated", PaketService.Outdated |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.Restore", PaketService.Restore |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.AutoRestoreOn", PaketService.AutoRestoreOn |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.AutoRestoreOff", PaketService.AutoRestoreOff |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.ConvertFromNuget", PaketService.ConvertFromNuget |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.Simplify", PaketService.Simplify |> unbox) |> ignore
         ()
