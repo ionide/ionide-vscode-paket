@@ -31,7 +31,7 @@ module PaketService =
         outputChannel.clear ()
         window.Globals.showInformationMessageOverload2 ("Paket started", "Open")
         |> Promise.toPromise
-        |> Promise.success(fun n -> outputChannel.show (2 |> unbox) )
+        |> Promise.success(fun n -> if n = "Open" then outputChannel.show (2 |> unbox) )
         |> ignore
         let proc = Process.spawnWithNotification location "mono" cmd outputChannel
         proc.on("exit",unbox<Function>(fun (code : string) ->
