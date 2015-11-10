@@ -3,18 +3,53 @@
 	"version": "0.0.1",
 	"publisher": "Ionide",
 	"engines": {
-		"vscode": "*"
+		"vscode": "^0.10.0"
 	},
 	"main": "./paket",
 	"contributes": {
 		"commands": [{
-			"command": "paket.paketInit",
+			"command": "paket.Init",
 			"title": "Paket: Init"
+		},{
+			"command": "paket.Install",
+			"title": "Paket: Install"
+		},{
+			"command": "paket.Update",
+			"title": "Paket: Update"
+		},{
+			"command": "paket.Outdated",
+			"title": "Paket: Outdated"
+		},{
+			"command": "paket.Restore",
+			"title": "Paket: Restore"
+		},{
+			"command": "paket.AutoRestoreOn",
+			"title": "Paket: AutoRestore On"
+		},{
+			"command": "paket.AutoRestoreOff",
+			"title": "Paket: AutoRestore Off"
+		},{
+			"command": "paket.ConvertFromNuget",
+			"title": "Paket: Convert From Nuget"
+		},{
+			"command": "paket.Simplify",
+			"title": "Paket: Simplify"
 		}],
 		"outputChannels": [
 			"Paket"
 		]
 	},
+	"activationEvents": [
+    "onCommand:paket.Init",
+		"onCommand:paket.Install",
+		"onCommand:paket.Update",
+		"onCommand:paket.Outdated",
+		"onCommand:paket.Restore",
+		"onCommand:paket.AutoRestoreOn",
+		"onCommand:paket.AutoRestoreOff",
+		"onCommand:paket.ConvertFromNuget",
+		"onCommand:paket.Simplify"
+	],
 	"devDependencies": {
 		"vscode": "*"
 	},
