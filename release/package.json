@@ -34,6 +34,27 @@
 		},{
 			"command": "paket.Simplify",
 			"title": "Paket: Simplify"
+		},{
+			"command": "paket.Add",
+			"title": "Paket: Add NuGet Package"
+		},{
+			"command": "paket.AddToCurrent",
+			"title": "Paket: Add NuGet Package (to current project)"
+		},{
+			"command": "paket.UpdateGroup",
+			"title": "Paket: Update Group"
+		},{
+			"command": "paket.UpdatePackage",
+			"title": "Paket: Update NuGet Package "
+		},{
+			"command": "paket.UpdatePackageCurrent",
+			"title": "Paket: Update NuGet Package (from current project)"
+		},{
+			"command": "paket.RemovePackage",
+			"title": "Paket: Remove NuGet Package "
+		},{
+			"command": "paket.RemovePackageCurrent",
+			"title": "Paket: Remove NuGet Package (from current project)"
 		}],
 		"outputChannels": [
 			"Paket"
@@ -48,7 +69,14 @@
 		"onCommand:paket.AutoRestoreOn",
 		"onCommand:paket.AutoRestoreOff",
 		"onCommand:paket.ConvertFromNuget",
-		"onCommand:paket.Simplify"
+		"onCommand:paket.Simplify",
+		"onCommand:paket.Add",
+		"onCommand:paket.AddToCurrent",
+		"onCommand:paket.UpdateGroup",
+		"onCommand:paket.UpdatePackage",
+		"onCommand:paket.UpdatePackageCurrent",
+		"onCommand:paket.RemovePackage",
+		"onCommand:paket.RemovePackageCurrent"
 	],
 	"devDependencies": {
 		"vscode": "*"

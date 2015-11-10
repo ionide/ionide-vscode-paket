@@ -21,7 +21,7 @@ module PaketService =
 
 
     let private bootstrapperLocation =
-        if Globals._process.platform.StartsWith("win") then
+        if Process.isWin () then
             (VSCode.getPluginPath "ionide-paket") + @"\bin\paket.bootstrapper.exe"
         else
             (VSCode.getPluginPath "ionide-paket")+ @"/bin/paket.bootstrapper.exe"
@@ -33,19 +33,27 @@ module PaketService =
         |> Promise.toPromise
         |> Promise.success(fun n -> if n = "Open" then outputChannel.show (2 |> unbox) )
         |> ignore
-        let proc = Process.spawnWithNotification location "mono" cmd outputChannel
-        proc.on("exit",unbox<Function>(fun (code : string) ->
+
+        Process.spawnWithNotification location "mono" cmd outputChannel
+        |> Process.onExit(fun (code : string) ->
             if code ="0" then
                 window.Globals.showInformationMessage "Paket completed" |> ignore
             else
-                window.Globals.showErrorMessage "Paket failed" |> ignore
-        )) |> ignore
-        proc
+                window.Globals.showErrorMessage "Paket failed" |> ignore)
+        |> ignore
+    let private execPaket cmd = Process.exec location "mono" cmd
+
+    let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
+        if(stdout.toString() = "") then
+            [||]
+        else
+            stdout.toString().Split('\n')
+            |> Array.filter((<>) "" )
 
     let UpdatePaketSilent () = Process.spawn bootstrapperLocation "mono" ""
     let Init () = "init" |> spawnPaket
-    let Install () = "install" |> spawnPaket
     let Update () = "update" |> spawnPaket
+    let Install () = "install" |> spawnPaket
     let Outdated () = "outdated" |> spawnPaket
     let Restore () = "restore" |> spawnPaket
     let AutoRestoreOn () = "auto-restore on" |> spawnPaket
@@ -53,6 +61,74 @@ module PaketService =
     let ConvertFromNuget () = "convert-from-nuget" |> spawnPaket
     let Simplify () = "simplify" |> spawnPaket
 
+    let Add () =
+        (window.Globals.showInputBox ())
+        |> Promise.toPromise
+        |> Promise.success (fun n -> if JS.isDefined n then  sprintf "add nuget %s" n  |> spawnPaket)
+        |> ignore
+
+    let AddToCurrent () =
+        let fn = window.Globals.activeTextEditor.document.fileName
+        if fn.EndsWith(".fsproj") then
+            (window.Globals.showInputBox ())
+            |> Promise.toPromise
+            |> Promise.success (fun n -> if JS.isDefined n then sprintf "add nuget %s project \"%s\"" n fn |> spawnPaket)
+            |> ignore
+        else
+            window.Globals.showErrorMessage "fsproj file needs to be opened" |> ignore
+
+    let UpdateGroup () =
+        "show-groups -s"
+        |> execPaket
+        |> Promise.success (handlePaketList)
+        |> window.Globals.showQuickPick
+        |> Promise.toPromise
+        |> Promise.success (fun n -> if JS.isDefined n then sprintf "update group %s" n |> spawnPaket)
+        |> ignore
+
+    let UpdatePackage () =
+        "show-installed-packages -s"
+        |> execPaket
+        |> Promise.success (handlePaketList)
+        |> window.Globals.showQuickPick
+        |> Promise.toPromise
+        |> Promise.success (fun n -> if JS.isDefined n then sprintf "update nuget %s" n |> spawnPaket)
+        |> ignore
+
+    let UpdatePackageCurrent () =
+        let fn = window.Globals.activeTextEditor.document.fileName
+        if fn.EndsWith(".fsproj") then
+            "show-installed-packages -s"
+            |> execPaket
+            |> Promise.success (handlePaketList)
+            |> window.Globals.showQuickPick
+            |> Promise.toPromise
+            |> Promise.success (fun n -> if JS.isDefined n then sprintf "update nuget %s project \"%s\"" fn n |> spawnPaket)
+            |> ignore
+        else
+            window.Globals.showErrorMessage "fsproj file needs to be opened" |> ignore
+
+    let RemovePackage () =
+        "show-installed-packages -s"
+        |> execPaket
+        |> Promise.success (handlePaketList)
+        |> window.Globals.showQuickPick
+        |> Promise.toPromise
+        |> Promise.success (fun n -> if JS.isDefined n then sprintf "remove nuget %s" n |> spawnPaket)
+        |> ignore
+
+    let RemovePackageCurrent () =
+        let fn = window.Globals.activeTextEditor.document.fileName
+        if fn.EndsWith(".fsproj") then
+            "show-installed-packages -s"
+            |> execPaket
+            |> Promise.success (handlePaketList)
+            |> window.Globals.showQuickPick
+            |> Promise.toPromise
+            |> Promise.success (fun n -> if JS.isDefined n then sprintf "remove nuget %s project \"%s\"" fn n |> spawnPaket)
+            |> ignore
+        else
+            window.Globals.showErrorMessage "fsproj file needs to be opened" |> ignore
 
 type Paket() =
     member x.activate(state:obj) =
@@ -66,4 +142,11 @@ type Paket() =
         commands.Globals.registerCommand("paket.AutoRestoreOff", PaketService.AutoRestoreOff |> unbox) |> ignore
         commands.Globals.registerCommand("paket.ConvertFromNuget", PaketService.ConvertFromNuget |> unbox) |> ignore
         commands.Globals.registerCommand("paket.Simplify", PaketService.Simplify |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.Add", PaketService.Add |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.AddToCurrent", PaketService.AddToCurrent |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.UpdateGroup", PaketService.UpdateGroup |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.UpdatePackage", PaketService.UpdatePackage |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.UpdatePackageCurrent", PaketService.UpdatePackageCurrent |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.RemovePackage", PaketService.RemovePackage |> unbox) |> ignore
+        commands.Globals.registerCommand("paket.RemovePackageCurrent", PaketService.RemovePackageCurrent |> unbox) |> ignore
         ()
