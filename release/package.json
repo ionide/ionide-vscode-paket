@@ -1,7 +1,21 @@
 {
 	"name": "ionide-paket",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"publisher": "Ionide",
+	"description": "Paket (alternative Nuget client) Support",
+	"categories":[
+		 "Other"
+	],
+	"license":"SEE LICENSE IN LICENSE.md",
+	"icon": "images/logo.png",
+	"bugs": {
+		"url": "https://github.com/ionide/ionide-vscode-paket/issues"
+	},
+	"homepage": "http://ionide.io",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ionide/ionide-vscode-paket.git"
+	},
 	"engines": {
 		"vscode": "^0.10.0"
 	},
