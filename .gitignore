@@ -42,7 +42,7 @@ typings/FunScript.TypeScript/*.txt
 src/bin/
 src/obj/
 *.userprefs
-src/paket/bin/paket.exe
+release/bin/paket.exe
 src/core/lib/core.js
 src/paket/lib/paket.js
 *ncrunch*
