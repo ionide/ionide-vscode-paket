@@ -1,6 +1,6 @@
 {
-	"name": "ionide-paket",
-	"version": "0.1.1",
+	"name": "Ionide-Paket",
+	"version": "0.1.3",
 	"publisher": "Ionide",
 	"description": "Paket (alternative Nuget client) Support",
 	"categories":[
