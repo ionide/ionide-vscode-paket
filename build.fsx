@@ -65,7 +65,7 @@ Target "Clean" (fun _ ->
 
 #if MONO
 Target "BuildGenerator" (fun () ->
-    [ __SOURCE_DIRECTORY__ @@ "src" @@ "Ionide.Paket.fsproj" ]
+    [ __SOURCE_DIRECTORY__ </> "src" </> "Ionide.Paket.fsproj" ]
     |> MSBuildDebug "" "Rebuild"
     |> Log "AppBuild-Output: "
 )
@@ -73,12 +73,12 @@ Target "BuildGenerator" (fun () ->
 Target "RunGenerator" (fun () ->
     (TimeSpan.FromMinutes 5.0)
     |> ProcessHelper.ExecProcess (fun p ->
-        p.FileName <- __SOURCE_DIRECTORY__ @@ "src" @@ "bin" @@ "Debug" @@ "Ionide.Paket.exe" )
+        p.FileName <- __SOURCE_DIRECTORY__ </> "src" </> "bin" </> "Debug" </> "Ionide.Paket.exe" )
     |> ignore
 )
 #else
 Target "RunScript" (fun () ->
-    Ionide.VSCode.Generator.translateModules typeof<Ionide.VSCode.Paket> "../release/paket.js"
+    Ionide.VSCode.Generator.translateModules typeof<Ionide.VSCode.Paket> (".." </> "release" </> "paket.js")
 )
 #endif
 
