@@ -15,16 +15,16 @@ open Ionide.VSCode
 module PaketService =
     let private location =
         if Process.isWin () then
-            (VSCode.getPluginPath "Ionide.ionide-paket") + @"\bin\paket.exe"
+            (VSCode.getPluginPath "Ionide.Ionide-Paket") + @"\bin\paket.exe"
         else
-            (VSCode.getPluginPath "Ionide.ionide-paket") + @"/bin/paket.exe"
+            (VSCode.getPluginPath "Ionide.Ionide-Paket") + @"/bin/paket.exe"
 
 
     let private bootstrapperLocation =
         if Process.isWin () then
-            (VSCode.getPluginPath "Ionide.ionide-paket") + @"\bin\paket.bootstrapper.exe"
+            (VSCode.getPluginPath "Ionide.Ionide-Paket") + @"\bin\paket.bootstrapper.exe"
         else
-            (VSCode.getPluginPath "Ionide.ionide-paket")+ @"/bin/paket.bootstrapper.exe"
+            (VSCode.getPluginPath "Ionide.Ionide-Paket")+ @"/bin/paket.bootstrapper.exe"
 
     let private spawnPaket cmd =
         let outputChannel = window.Globals.createOutputChannel "Paket"
