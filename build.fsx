@@ -54,6 +54,13 @@ let run cmd args dir =
     ) System.TimeSpan.MaxValue = false then
         traceError <| sprintf "Error while running '%s' with args: %s" cmd args
 
+let npmTool =
+    #if MONO
+        "npm"
+    #else
+        // TODO: Detect where npm lives
+       @"C:\Program Files\nodejs" </> "npm.cmd"
+    #endif
 
 // --------------------------------------------------------------------------------------
 // Build the Generator project and run it
@@ -82,11 +89,17 @@ Target "RunScript" (fun () ->
 )
 #endif
 
+Target "InstallVSCE" ( fun _ ->
+    killProcess "npm"
+    run npmTool "install -g vsce" ""
+)
+
 // --------------------------------------------------------------------------------------
 // Run generator by default. Invoke 'build <Target>' to override
 // --------------------------------------------------------------------------------------
 
 Target "Default" DoNothing
+Target "Deploy" DoNothing
 
 #if MONO
 "Clean"
@@ -99,4 +112,7 @@ Target "Default" DoNothing
     ==> "Default"
 #endif
 
+"Default"
+  ==> "InstallVSCE"
+  ==> "Deploy"
 RunTargetOrDefault "Default"
