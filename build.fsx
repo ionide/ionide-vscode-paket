@@ -61,6 +61,15 @@ let npmTool =
         // TODO: Detect where npm lives
        @"C:\Program Files\nodejs" </> "npm.cmd"
     #endif
+    
+let vsceTool =
+    #if MONO
+        "vsce"
+    #else
+        // TODO: Detect where vsce lives
+        @"C:\Users\Steffen\AppData\Roaming\npm" </> "vsce.cmd"
+    #endif
+    
 
 // --------------------------------------------------------------------------------------
 // Build the Generator project and run it
@@ -94,6 +103,11 @@ Target "InstallVSCE" ( fun _ ->
     run npmTool "install -g vsce" ""
 )
 
+Target "RunVSCE" ( fun _ ->
+    killProcess "vsce"
+    run vsceTool "version" ""
+)
+
 // --------------------------------------------------------------------------------------
 // Run generator by default. Invoke 'build <Target>' to override
 // --------------------------------------------------------------------------------------
@@ -114,5 +128,6 @@ Target "Deploy" DoNothing
 
 "Default"
   ==> "InstallVSCE"
+  ==> "RunVSCE"
   ==> "Deploy"
 RunTargetOrDefault "Default"
