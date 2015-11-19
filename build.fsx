@@ -73,6 +73,7 @@ let vsceTool =
 // --------------------------------------------------------------------------------------
 
 Target "Clean" (fun _ ->
+    CleanDir "./temp"
     CopyFiles "release" ["README.md"; "LICENSE.md"; "RELEASE_NOTES.md"]
 )
 
@@ -100,9 +101,11 @@ Target "InstallVSCE" ( fun _ ->
     run npmTool "install -g vsce" ""
 )
 
-Target "RunVSCE" ( fun _ ->
+Target "BuildPackage" ( fun _ ->
     killProcess "vsce"
-    run vsceTool "version" ""
+    run vsceTool "package" "release"
+    !! "release/*.vsix"
+    |> Seq.iter(MoveFile "./temp/")
 )
 
 // --------------------------------------------------------------------------------------
@@ -125,6 +128,6 @@ Target "Deploy" DoNothing
 
 "Default"
   ==> "InstallVSCE"
-  ==> "RunVSCE"
+  ==> "BuildPackage"
   ==> "Deploy"
 RunTargetOrDefault "Default"
