@@ -55,12 +55,9 @@ let run cmd args dir =
         traceError <| sprintf "Error while running '%s' with args: %s" cmd args
 
 let npmTool =
-    #if MONO
-        "npm"
-    #else
-        // TODO: Detect where npm lives
-       @"C:\Program Files\nodejs" </> "npm.cmd"
-    #endif
+    match isUnix with
+    | true -> "/usr/local/bin/npm"
+    | _ -> __SOURCE_DIRECTORY__ </> "packages/Npm.js/tools/npm.cmd"
     
 let vsceTool =
     #if MONO

@@ -3,3 +3,6 @@ NUGET
   specs:
     FAKE (4.0.0)
     FunScript (1.1.94)
+    Node.js (4.0.0)
+    Npm.js (2.13.1.0)
+      Node.js (>= 0.12.7)
