@@ -108,12 +108,32 @@ Target "BuildPackage" ( fun _ ->
     |> Seq.iter(MoveFile "./temp/")
 )
 
+Target "LoginToVSCE" ( fun _ ->
+    let publisher =
+        match getBuildParam "vsce-publisher" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> getUserPassword "VSCE Publisher: "
+        
+    let token =
+        match getBuildParam "vsce-token" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> getUserPassword "VSCE Token: "
+        
+    killProcess "vsce"
+    run vsceTool (sprintf "login %s -pat %s" publisher token) "release"
+)
+
+Target "PublishToGallery" ( fun _ -> 
+    killProcess "vsce"
+    run vsceTool "publish" "release"
+)
+
 // --------------------------------------------------------------------------------------
 // Run generator by default. Invoke 'build <Target>' to override
 // --------------------------------------------------------------------------------------
 
 Target "Default" DoNothing
-Target "Deploy" DoNothing
+Target "Release" DoNothing
 
 #if MONO
 "Clean"
@@ -129,5 +149,7 @@ Target "Deploy" DoNothing
 "Default"
   ==> "InstallVSCE"
   ==> "BuildPackage"
-  ==> "Deploy"
+  // ==> "LoginToVSCE"
+  ==> "PublishToGallery"
+  ==> "Release"
 RunTargetOrDefault "Default"
