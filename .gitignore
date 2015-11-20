@@ -58,3 +58,4 @@ temp
 .vs
 *.js
 release.cmd
+paket-files
