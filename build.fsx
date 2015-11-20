@@ -63,8 +63,7 @@ let vsceTool =
     #if MONO
         "vsce"
     #else
-        // TODO: Detect where vsce lives
-        @"C:\Users\Steffen\AppData\Roaming\npm" </> "vsce.cmd"
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) </> "npm" </> "vsce.cmd"
     #endif
     
 
