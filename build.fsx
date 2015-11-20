@@ -101,6 +101,19 @@ Target "InstallVSCE" ( fun _ ->
     run npmTool "install -g vsce" ""
 )
 
+Target "SetVersion" (fun _ ->
+    let fileName = "./release/project.json"
+    let lines =
+        File.ReadAllLines fileName        
+        |> Seq.map (fun line ->
+            if line.Trim().StartsWith("\"version\":") then
+                let i = line.Length - line.Trim().Length
+                sprintf "%s\"version\": \"%O\"," (String.Empty.PadLeft(i)) release.NugetVersion
+            else line) 
+    File.WriteAllLines(fileName,lines)
+    failwith "stop"
+)
+
 Target "BuildPackage" ( fun _ ->
     killProcess "vsce"
     run vsceTool "package" "release"
