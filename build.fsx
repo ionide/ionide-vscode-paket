@@ -102,16 +102,15 @@ Target "InstallVSCE" ( fun _ ->
 )
 
 Target "SetVersion" (fun _ ->
-    let fileName = "./release/project.json"
+    let fileName = "./release/package.json"
     let lines =
         File.ReadAllLines fileName        
         |> Seq.map (fun line ->
-            if line.Trim().StartsWith("\"version\":") then
-                let i = line.Length - line.Trim().Length
-                sprintf "%s\"version\": \"%O\"," (String.Empty.PadLeft(i)) release.NugetVersion
+            if line.TrimStart().StartsWith("\"version\":") then
+                let indent = line.Substring(0,line.IndexOf("\""))                 
+                sprintf "%s\"version\": \"%O\"," indent release.NugetVersion
             else line) 
     File.WriteAllLines(fileName,lines)
-    failwith "stop"
 )
 
 Target "BuildPackage" ( fun _ ->
@@ -195,6 +194,7 @@ Target "Release" DoNothing
 #endif
 
 "Default"
+  ==> "SetVersion"
   ==> "InstallVSCE"
   ==> "BuildPackage"
   ==> "ReleaseGitHub"
