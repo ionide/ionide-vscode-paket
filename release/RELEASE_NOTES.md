@@ -1,3 +1,6 @@
+#### 1.0.3 - 05.01.2016
+* Fix path error
+
 #### 1.0.2 - 20.11.2015
 * First automatic release with FAKE
 
