@@ -35,8 +35,8 @@ module PaketService =
         |> ignore
 
         Process.spawnWithNotification location "mono" cmd outputChannel
-        |> Process.onExit(fun (code : string) ->
-            if code ="0" then
+        |> Process.onExit(fun (code) ->
+            if code.ToString() ="0" then
                 window.Globals.showInformationMessage "Paket completed" |> ignore
             else
                 window.Globals.showErrorMessage "Paket failed" |> ignore)
