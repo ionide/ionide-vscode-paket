@@ -1,7 +1,7 @@
 NUGET
   remote: https://www.nuget.org/api/v2
   specs:
-    FAKE (4.9.3)
+    FAKE (4.20.0)
     FunScript (1.1.94)
     Microsoft.Bcl (1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
@@ -9,10 +9,10 @@ NUGET
     Microsoft.Net.Http (2.2.29)
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
-    Node.js (4.0.0)
+    Node.js (5.3.0)
     Npm.js (2.13.1)
       Node.js (>= 0.12.7)
-    Octokit (0.16.0)
+    Octokit (0.18.0)
       Microsoft.Net.Http
 GIT
   remote: git@github.com:ionide/ionide-vscode-helpers.git
