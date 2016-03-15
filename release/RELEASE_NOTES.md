@@ -1,3 +1,7 @@
+### 1.1.0 - 15.03.2016
+* Use local Paket if possible
+* Fix Paket add
+
 #### 1.0.3 - 05.01.2016
 * Fix path error
 
