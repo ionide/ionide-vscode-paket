@@ -13,22 +13,28 @@ open Ionide
 open Ionide.VSCode
 
 module PaketService =
-    let private location =
-        if Process.isWin () then
-            (VSCode.getPluginPath "Ionide.Ionide-Paket") + @"\bin\paket.exe"
-        else
-            (VSCode.getPluginPath "Ionide.Ionide-Paket") + @"/bin/paket.exe"
 
+    let (</>) a b =
+        if  Process.isWin ()
+        then a + @"\" + b
+        else a + "/" + b
+
+    let localPaketDir = vscode.workspace.Globals.rootPath </> ".paket"
+    let localPaket    = localPaketDir </>  "paket.exe"
+    let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
+
+    let private location =
+        if Globals.existsSync localPaketDir then  localPaket else
+        (VSCode.getPluginPath "Ionide.Ionide-Paket") </> "bin" </> "paket.exe"
 
     let private bootstrapperLocation =
-        if Process.isWin () then
-            (VSCode.getPluginPath "Ionide.Ionide-Paket") + @"\bin\paket.bootstrapper.exe"
-        else
-            (VSCode.getPluginPath "Ionide.Ionide-Paket")+ @"/bin/paket.bootstrapper.exe"
+        if Globals.existsSync localPaketDir then  localBootstrapper else
+        (VSCode.getPluginPath "Ionide.Ionide-Paket") </> "bin" </> "paket.bootstrapper.exe"
 
     let private spawnPaket cmd =
         let outputChannel = window.Globals.createOutputChannel "Paket"
         outputChannel.clear ()
+        outputChannel.append location
         window.Globals.showInformationMessageOverload2 ("Paket started", "Open")
         |> Promise.toPromise
         |> Promise.success(fun n -> if n = "Open" then outputChannel.show (2 |> unbox) )
@@ -41,7 +47,13 @@ module PaketService =
             else
                 window.Globals.showErrorMessage "Paket failed" |> ignore)
         |> ignore
-    let private execPaket cmd = Process.exec location "mono" cmd
+
+    let private execPaket cmd =
+        if not (Globals.existsSync location) then
+            Process.exec bootstrapperLocation "mono" ""
+            |> Promise.bind (fun _ -> Process.exec location "mono" cmd)
+        else
+        Process.exec location "mono" cmd
 
     let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
         if(stdout.toString() = "") then
@@ -61,8 +73,10 @@ module PaketService =
     let ConvertFromNuget () = "convert-from-nuget" |> spawnPaket
     let Simplify () = "simplify" |> spawnPaket
 
+    let inputOptions = createEmpty<InputBoxOptions>()
+
     let Add () =
-        (window.Globals.showInputBox ())
+        (window.Globals.showInputBox inputOptions)
         |> Promise.toPromise
         |> Promise.success (fun n -> if JS.isDefined n then  sprintf "add nuget %s" n  |> spawnPaket)
         |> ignore
@@ -70,7 +84,7 @@ module PaketService =
     let AddToCurrent () =
         let fn = window.Globals.activeTextEditor.document.fileName
         if fn.EndsWith(".fsproj") then
-            (window.Globals.showInputBox ())
+            (window.Globals.showInputBox inputOptions)
             |> Promise.toPromise
             |> Promise.success (fun n -> if JS.isDefined n then sprintf "add nuget %s project \"%s\"" n fn |> spawnPaket)
             |> ignore
