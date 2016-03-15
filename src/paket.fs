@@ -34,7 +34,7 @@ module PaketService =
     let private spawnPaket cmd =
         let outputChannel = window.Globals.createOutputChannel "Paket"
         outputChannel.clear ()
-        outputChannel.append location
+        outputChannel.append (location+"\n")
         window.Globals.showInformationMessageOverload2 ("Paket started", "Open")
         |> Promise.toPromise
         |> Promise.success(fun n -> if n = "Open" then outputChannel.show (2 |> unbox) )
