@@ -96,6 +96,7 @@
 		"vscode": "*"
 	},
 	"dependencies": {
-		"path": "*"
+		"path": "*",
+        "toml":"*"
 	}
 }
