@@ -106,7 +106,11 @@ module PaketService =
         |> Promise.success (handlePaketList)
         |> window.Globals.showQuickPick
         |> Promise.toPromise
-        |> Promise.success (fun n -> if JS.isDefined n then sprintf "update nuget %s" n |> spawnPaket)
+        |> Promise.success (fun n -> 
+            if JS.isDefined n then 
+                let group = n.Split(' ').[0].Trim()
+                let name = n.Split(' ').[1].Trim()
+                sprintf "update nuget %s group %s" name group |> spawnPaket)
         |> ignore
 
     let UpdatePackageCurrent () =
@@ -117,7 +121,11 @@ module PaketService =
             |> Promise.success (handlePaketList)
             |> window.Globals.showQuickPick
             |> Promise.toPromise
-            |> Promise.success (fun n -> if JS.isDefined n then sprintf "update nuget %s project \"%s\"" fn n |> spawnPaket)
+            |> Promise.success (fun n -> 
+                if JS.isDefined n then 
+                    let group = n.Split(' ').[0].Trim()
+                    let name = n.Split(' ').[1].Trim()
+                    sprintf "update nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
             |> ignore
         else
             window.Globals.showErrorMessage "fsproj file needs to be opened" |> ignore
@@ -128,7 +136,11 @@ module PaketService =
         |> Promise.success (handlePaketList)
         |> window.Globals.showQuickPick
         |> Promise.toPromise
-        |> Promise.success (fun n -> if JS.isDefined n then sprintf "remove nuget %s" n |> spawnPaket)
+        |> Promise.success (fun (n :string) -> 
+            if JS.isDefined n then 
+                let group = n.Split(' ').[0].Trim()
+                let name = n.Split(' ').[1].Trim()
+                sprintf "remove nuget %s group %s" name group |> spawnPaket)
         |> ignore
 
     let RemovePackageCurrent () =
@@ -139,7 +151,11 @@ module PaketService =
             |> Promise.success (handlePaketList)
             |> window.Globals.showQuickPick
             |> Promise.toPromise
-            |> Promise.success (fun n -> if JS.isDefined n then sprintf "remove nuget %s project \"%s\"" fn n |> spawnPaket)
+            |> Promise.success (fun n -> 
+                if JS.isDefined n then 
+                    let group = n.Split(' ').[0].Trim()
+                    let name = n.Split(' ').[1].Trim()
+                    sprintf "remove nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
             |> ignore
         else
             window.Globals.showErrorMessage "fsproj file needs to be opened" |> ignore
