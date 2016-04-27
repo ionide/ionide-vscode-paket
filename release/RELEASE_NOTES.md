@@ -1,3 +1,6 @@
+### 1.1.1 - 27.04.2016
+* Fix group support for update and remove 
+
 ### 1.1.0 - 15.03.2016
 * Use local Paket if possible
 * Fix Paket add
