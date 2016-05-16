@@ -8,14 +8,12 @@
 
 {
 	"version": "0.1.0",
-    "command": "build.cmd",
+    "command": "npm",
     "isShellCommand": true,
-	"showOutput": "silent",
-    "args": [],
     "tasks": [
         {
-            "taskName": "Default",
-            "args": [],
+            "taskName": "run",
+            "args": ["build"],
             "isBuildCommand": true
         }
     ]
