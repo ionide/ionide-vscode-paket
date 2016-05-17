@@ -1,0 +1,163 @@
+// --------------------------------------------------------------------------------------
+// FAKE build script
+// --------------------------------------------------------------------------------------
+
+#I "packages/FAKE/tools"
+#r "packages/FAKE/tools/FakeLib.dll"
+open System
+open System.Diagnostics
+open System.IO
+open Fake
+open Fake.Git
+open Fake.ProcessHelper
+open Fake.ReleaseNotesHelper
+open Fake.ZipHelper
+
+
+// Git configuration (used for publishing documentation in gh-pages branch)
+// The profile where the project is posted
+let gitOwner = "ionide"
+let gitHome = "https://github.com/" + gitOwner
+
+
+// The name of the project on GitHub
+let gitName = "ionide-vscode-paket"
+
+// The url for the raw files hosted
+let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/ionide"
+
+
+// Read additional information from the release notes document
+let releaseNotesData =
+    File.ReadAllLines "RELEASE_NOTES.md"
+    |> parseAllReleaseNotes
+
+let release = List.head releaseNotesData
+
+let msg =  release.Notes |> List.fold (fun r s -> r + s + "\n") ""
+let releaseMsg = (sprintf "Release %s\n" release.NugetVersion) + msg
+
+
+let run cmd args dir =
+    if execProcess( fun info ->
+        info.FileName <- cmd
+        if not( String.IsNullOrWhiteSpace dir) then
+            info.WorkingDirectory <- dir
+        info.Arguments <- args
+    ) System.TimeSpan.MaxValue = false then
+        traceError <| sprintf "Error while running '%s' with args: %s" cmd args
+
+let npmTool =
+    match isUnix with
+    | true -> "/usr/local/bin/npm"
+    | _ -> __SOURCE_DIRECTORY__ </> "packages/Npm.js/tools/npm.cmd"
+    
+let vsceTool =
+    #if MONO
+        "vsce"
+    #else
+        "packages" </> "Node.js" </> "vsce.cmd" |> FullName
+    #endif
+    
+
+// --------------------------------------------------------------------------------------
+// Build the Generator project and run it
+// --------------------------------------------------------------------------------------
+
+Target "Clean" (fun _ ->
+    CleanDir "./temp"
+)
+
+Target "Build" ( fun _ ->
+    run npmTool "install" ""
+    run npmTool "run build" ""
+)
+
+Target "InstallVSCE" ( fun _ ->
+    killProcess "npm"
+    run npmTool "install -g vsce" ""
+)
+
+Target "SetVersion" (fun _ ->
+    let fileName = "./package.json"
+    let lines =
+        File.ReadAllLines fileName        
+        |> Seq.map (fun line ->
+            if line.TrimStart().StartsWith("\"version\":") then
+                let indent = line.Substring(0,line.IndexOf("\""))                 
+                sprintf "%s\"version\": \"%O\"," indent release.NugetVersion
+            else line) 
+    File.WriteAllLines(fileName,lines)
+)
+
+Target "BuildPackage" ( fun _ ->
+    killProcess "vsce"
+    run vsceTool "package" "release"
+    !! "*.vsix"
+    |> Seq.iter(MoveFile "./temp/")
+)
+
+Target "PublishToGallery" ( fun _ ->       
+    let token =
+        match getBuildParam "vsce-token" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> getUserPassword "VSCE Token: "
+        
+    killProcess "vsce"
+    run vsceTool (sprintf "publish --pat %s" token) "."
+)
+
+#load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+open Octokit
+
+Target "ReleaseGitHub" (fun _ ->
+    let user =
+        match getBuildParam "github-user" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> getUserInput "Username: "
+    let pw =
+        match getBuildParam "github-pw" with
+        | s when not (String.IsNullOrWhiteSpace s) -> s
+        | _ -> getUserPassword "Password: "
+    let remote =
+        Git.CommandHelper.getGitResult "" "remote -v"
+        |> Seq.filter (fun (s: string) -> s.EndsWith("(push)"))
+        |> Seq.tryFind (fun (s: string) -> s.Contains(gitOwner + "/" + gitName))
+        |> function None -> gitHome + "/" + gitName | Some (s: string) -> s.Split().[0]
+
+    StageAll ""
+    Git.Commit.Commit "" (sprintf "Bump version to %s" release.NugetVersion)
+    Branches.pushBranch "" remote (Information.getBranchName "")
+
+    Branches.tag "" release.NugetVersion
+    Branches.pushTag "" remote release.NugetVersion
+    
+    let file = !! ("./temp" </> "*.vsix") |> Seq.head
+    
+    // release on github
+    createClient user pw
+    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes 
+    |> uploadFile file
+    |> releaseDraft
+    |> Async.RunSynchronously
+)
+
+// --------------------------------------------------------------------------------------
+// Run generator by default. Invoke 'build <Target>' to override
+// --------------------------------------------------------------------------------------
+
+Target "Default" DoNothing
+Target "Release" DoNothing
+
+"Clean"
+  ==> "Build"
+  ==> "Default"
+
+"Default"
+  ==> "SetVersion"
+  ==> "InstallVSCE"
+  ==> "BuildPackage"
+  ==> "ReleaseGitHub"
+  ==> "PublishToGallery"
+  ==> "Release"
+RunTargetOrDefault "Default"
