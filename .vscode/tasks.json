@@ -10,6 +10,9 @@
 	"version": "0.1.0",
     "command": "npm",
     "isShellCommand": true,
+    "options": {
+        "cwd": "${workspaceRoot}/release"
+    },
     "tasks": [
         {
             "taskName": "run",

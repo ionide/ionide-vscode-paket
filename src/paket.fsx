@@ -1,7 +1,7 @@
 module Ionide.VSCode.PaketService
 
-#r "../node_modules/fable-core/Fable.Core.dll"
-#load "../node_modules/fable-import-vscode/Fable.Import.VSCode.fs"
+#r "../release/node_modules/fable-core/Fable.Core.dll"
+#load "../release/node_modules/fable-import-vscode/Fable.Import.VSCode.fs"
 
 open System
 open System.Text.RegularExpressions

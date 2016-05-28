@@ -66,11 +66,12 @@ let vsceTool =
 
 Target "Clean" (fun _ ->
     CleanDir "./temp"
+    CopyFiles "release" ["README.md"; "LICENSE.md"; "RELEASE_NOTES.md"]
 )
 
 Target "Build" ( fun _ ->
-    run npmTool "install" ""
-    run npmTool "run build" ""
+    run npmTool "install" "release"
+    run npmTool "run build" "release"
 )
 
 Target "InstallVSCE" ( fun _ ->
@@ -79,7 +80,7 @@ Target "InstallVSCE" ( fun _ ->
 )
 
 Target "SetVersion" (fun _ ->
-    let fileName = "./package.json"
+    let fileName = "./release/package.json"
     let lines =
         File.ReadAllLines fileName        
         |> Seq.map (fun line ->
@@ -93,7 +94,7 @@ Target "SetVersion" (fun _ ->
 Target "BuildPackage" ( fun _ ->
     killProcess "vsce"
     run vsceTool "package" "release"
-    !! "*.vsix"
+    !! "release/*.vsix"
     |> Seq.iter(MoveFile "./temp/")
 )
 
@@ -104,7 +105,7 @@ Target "PublishToGallery" ( fun _ ->
         | _ -> getUserPassword "VSCE Token: "
         
     killProcess "vsce"
-    run vsceTool (sprintf "publish --pat %s" token) "."
+    run vsceTool (sprintf "publish --pat %s" token) "release"
 )
 
 #load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"

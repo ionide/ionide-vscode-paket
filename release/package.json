@@ -1,0 +1,108 @@
+{
+	"name": "Ionide-Paket",
+	"version": "1.1.1",
+	"publisher": "Ionide",
+	"description": "Paket (alternative Nuget client) Support",
+	"categories":[
+		 "Other"
+	],
+	"license":"SEE LICENSE IN LICENSE.md",
+	"icon": "images/logo.png",
+	"bugs": {
+		"url": "https://github.com/ionide/ionide-vscode-paket/issues"
+	},
+	"homepage": "http://ionide.io",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ionide/ionide-vscode-paket.git"
+	},
+	"engines": {
+		"vscode": "^0.10.0"
+	},
+	"main": "./paket",
+	"contributes": {
+		"commands": [{
+			"command": "paket.Init",
+			"title": "Paket: Init"
+		},{
+			"command": "paket.Install",
+			"title": "Paket: Install"
+		},{
+			"command": "paket.Update",
+			"title": "Paket: Update"
+		},{
+			"command": "paket.Outdated",
+			"title": "Paket: Outdated"
+		},{
+			"command": "paket.Restore",
+			"title": "Paket: Restore"
+		},{
+			"command": "paket.AutoRestoreOn",
+			"title": "Paket: AutoRestore On"
+		},{
+			"command": "paket.AutoRestoreOff",
+			"title": "Paket: AutoRestore Off"
+		},{
+			"command": "paket.ConvertFromNuget",
+			"title": "Paket: Convert From Nuget"
+		},{
+			"command": "paket.Simplify",
+			"title": "Paket: Simplify"
+		},{
+			"command": "paket.Add",
+			"title": "Paket: Add NuGet Package"
+		},{
+			"command": "paket.AddToCurrent",
+			"title": "Paket: Add NuGet Package (to current project)"
+		},{
+			"command": "paket.UpdateGroup",
+			"title": "Paket: Update Group"
+		},{
+			"command": "paket.UpdatePackage",
+			"title": "Paket: Update NuGet Package "
+		},{
+			"command": "paket.UpdatePackageCurrent",
+			"title": "Paket: Update NuGet Package (from current project)"
+		},{
+			"command": "paket.RemovePackage",
+			"title": "Paket: Remove NuGet Package "
+		},{
+			"command": "paket.RemovePackageCurrent",
+			"title": "Paket: Remove NuGet Package (from current project)"
+		}],
+		"outputChannels": [
+			"Paket"
+		]
+	},
+	"activationEvents": [
+    "onCommand:paket.Init",
+		"onCommand:paket.Install",
+		"onCommand:paket.Update",
+		"onCommand:paket.Outdated",
+		"onCommand:paket.Restore",
+		"onCommand:paket.AutoRestoreOn",
+		"onCommand:paket.AutoRestoreOff",
+		"onCommand:paket.ConvertFromNuget",
+		"onCommand:paket.Simplify",
+		"onCommand:paket.Add",
+		"onCommand:paket.AddToCurrent",
+		"onCommand:paket.UpdateGroup",
+		"onCommand:paket.UpdatePackage",
+		"onCommand:paket.UpdatePackageCurrent",
+		"onCommand:paket.RemovePackage",
+		"onCommand:paket.RemovePackageCurrent"
+	],
+	"scripts": {
+		"build": "fable ../src/paket.fsx -s -o ../release -m commonjs"
+	},
+	"devDependencies": {
+		"vscode": "*",
+		"fable-compiler": "*",
+		"fable-import-vscode": "*"
+	},
+	"dependencies": {
+		"path": "*",
+        "toml":"*",
+		"fable-core": "*"
+	}
+}
