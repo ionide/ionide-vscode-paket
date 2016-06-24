@@ -1,4 +1,4 @@
-/.vscode/
+\.vscode\.browse.*
 paket-files
 
 
@@ -61,6 +61,10 @@ temp
 .fake
 .vs
 *.js
+*.js.map
 release.cmd
 paket-files
 issueList.md
+
+*.db
+*.db-wal

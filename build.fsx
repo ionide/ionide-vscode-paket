@@ -13,13 +13,6 @@ open Fake.ProcessHelper
 open Fake.ReleaseNotesHelper
 open Fake.ZipHelper
 
-#if MONO
-#else
-#load "src/vscode-bindings.fsx"
-#load "src/paket.fs"
-#load "src/main.fs"
-#endif
-
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -54,17 +47,28 @@ let run cmd args dir =
     ) System.TimeSpan.MaxValue = false then
         traceError <| sprintf "Error while running '%s' with args: %s" cmd args
 
-let npmTool =
+
+let pickTool unixPath winPath = 
     match isUnix with
-    | true -> "/usr/local/bin/npm"
-    | _ -> __SOURCE_DIRECTORY__ </> "packages/Npm.js/tools/npm.cmd"
+    | true -> unixPath
+    | _    -> winPath
+
+let npmTool =
+    pickTool
+        "/usr/local/bin/npm"
+        __SOURCE_DIRECTORY__ </> "packages/Npm.js/tools/npm.cmd"
     
 let vsceTool =
-    #if MONO
-        "vsce"
-    #else
+    pickTool
+        "vsce"    
         "packages" </> "Node.js" </> "vsce.cmd" |> FullName
-    #endif
+    
+    
+
+let codeTool =
+    pickTool
+        "code"  
+        ProgramFilesX86  </> "Microsoft VS Code" </> "bin/code.cmd"
     
 
 // --------------------------------------------------------------------------------------
@@ -76,24 +80,10 @@ Target "Clean" (fun _ ->
     CopyFiles "release" ["README.md"; "LICENSE.md"; "RELEASE_NOTES.md"]
 )
 
-#if MONO
-Target "BuildGenerator" (fun () ->
-    [ __SOURCE_DIRECTORY__ </> "src" </> "Ionide.Paket.fsproj" ]
-    |> MSBuildDebug "" "Rebuild"
-    |> Log "AppBuild-Output: "
+Target "Build" ( fun _ ->
+    run npmTool "install" "release"
+    run npmTool "run build" "release"
 )
-
-Target "RunGenerator" (fun () ->
-    (TimeSpan.FromMinutes 5.0)
-    |> ProcessHelper.ExecProcess (fun p ->
-        p.FileName <- __SOURCE_DIRECTORY__ </> "src" </> "bin" </> "Debug" </> "Ionide.Paket.exe" )
-    |> ignore
-)
-#else
-Target "RunScript" (fun () ->
-    Ionide.VSCode.Generator.translateModules typeof<Ionide.VSCode.Paket> (".." </> "release" </> "paket.js")
-)
-#endif
 
 Target "InstallVSCE" ( fun _ ->
     killProcess "npm"
@@ -117,6 +107,11 @@ Target "BuildPackage" ( fun _ ->
     run vsceTool "package" "release"
     !! "release/*.vsix"
     |> Seq.iter(MoveFile "./temp/")
+)
+
+Target "TryPackage"(fun _ ->
+    killProcess "code"
+    run codeTool (sprintf "./temp/Ionide-fsharp-%s.vsix" release.NugetVersion) ""
 )
 
 Target "PublishToGallery" ( fun _ ->       
@@ -171,16 +166,9 @@ Target "ReleaseGitHub" (fun _ ->
 Target "Default" DoNothing
 Target "Release" DoNothing
 
-#if MONO
 "Clean"
-    ==> "BuildGenerator"
-    ==> "RunGenerator"
-    ==> "Default"
-#else
-"Clean"
-    ==> "RunScript"
-    ==> "Default"
-#endif
+  ==> "Build"
+  ==> "Default"
 
 "Default"
   ==> "SetVersion"
