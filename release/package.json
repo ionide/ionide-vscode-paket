@@ -93,12 +93,11 @@
 		"onCommand:paket.RemovePackageCurrent"
 	],
 	"scripts": {
-		"build": "fable ../src/paket.fsx -s -o ../release -m commonjs"
+		"build": "fable ../src/Ionide.Paket.fsproj -s -o ../release -m commonjs"
 	},
 	"devDependencies": {
 		"vscode": "*",
-		"fable-compiler": "*",
-		"fable-import-vscode": "*"
+		"fable-compiler": "*"
 	},
 	"dependencies": {
 		"path": "*",

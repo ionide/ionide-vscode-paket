@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Name />
@@ -41,17 +41,16 @@
     <OtherFlags />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FunScript.TypeScript.Binding.lib">
-      <HintPath>..\paket-files\github.com\ionide\ionide-vscode-helpers\release\FunScript.TypeScript.Binding.lib.dll</HintPath>
-    </Reference>
-    <Reference Include="FunScript.TypeScript.Binding.node">
-      <HintPath>..\paket-files\github.com\ionide\ionide-vscode-helpers\release\FunScript.TypeScript.Binding.node.dll</HintPath>
-    </Reference>
-    <Reference Include="FunScript.TypeScript.Binding.vscode">
-      <HintPath>..\paket-files\github.com\ionide\ionide-vscode-helpers\release\FunScript.TypeScript.Binding.vscode.dll</HintPath>
-    </Reference>
-    <Reference Include="Ionide.Helpers">
-      <HintPath>..\paket-files\github.com\ionide\ionide-vscode-helpers\release\Ionide.Helpers.dll</HintPath>
+    <Compile Include="..\paket-files\Ionide\ionide-vscode-helpers\Fable.Import.VSCode.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Fable.Import.VSCode.fs</Link>
+    </Compile>
+    <Compile Include="..\paket-files\Ionide\ionide-vscode-helpers\Helpers.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Helpers.fs</Link>
+    </Compile>
+    <Reference Include="Fable.Core">
+      <HintPath>../release/node_modules/fable-core/Fable.Core.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
@@ -59,27 +58,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <Compile Include="paket.fs" />
-    <None Include="vscode-bindings.fsx" />
-    <None Include="paket.references" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
-      <ItemGroup>
-        <Reference Include="FunScript.Interop">
-          <HintPath>..\packages\FunScript\lib\net40\FunScript.Interop.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="FunScript">
-          <HintPath>..\packages\FunScript\lib\net40\FunScript.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
 </Project>
