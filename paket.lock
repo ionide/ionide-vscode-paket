@@ -17,6 +17,8 @@ GIT
   remote: git@github.com:ionide/ionide-vscode-helpers.git
      (b81a80ede2179222a5639cf866423d9bc6c2f0b4)
       build: build.cmd
+  remote: git@github.com:vbfox/ionide-fsgrammar.git
+     (f8ea41151b811832cda17eea89761cb6f5fb03c2)
 GITHUB
   remote: fsharp/FAKE
     modules/Octokit/Octokit.fsx (911c3efbc9127d52b1db0dc0ed6e12aafd23d548)
