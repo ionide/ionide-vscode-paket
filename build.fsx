@@ -95,7 +95,7 @@ Target "RunScript" (fun () ->
 )
 #endif
 
-let fsgrammarDir = "paket-files/github.com/vbfox/ionide-fsgrammar"
+let fsgrammarDir = "paket-files/github.com/ionide/ionide-fsgrammar"
 let fsgrammarRelease = "release/grammar"
 
 Target "CopyGrammar" (fun _ ->
