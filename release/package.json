@@ -21,6 +21,24 @@
 	},
 	"main": "./paket",
 	"contributes": {
+		"languages": [{
+            "id": "paket-dependencies",
+            "aliases": ["paket.dependencies"],
+            "extensions": ["paket.dependencies"]
+        },{
+            "id": "paket-lock",
+            "aliases": ["paket.lock"],
+            "extensions": ["paket.lock"]
+        }],
+        "grammars": [{
+            "language": "paket-dependencies",
+            "scopeName": "source.paket.dependencies",
+            "path": "./grammar/paket.dependencies.json"
+        },{
+            "language": "paket-lock",
+            "scopeName": "source.paket.lock",
+            "path": "./grammar/paket.lock.json"
+        }],
 		"commands": [{
 			"command": "paket.Init",
 			"title": "Paket: Init"

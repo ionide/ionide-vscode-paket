@@ -58,14 +58,14 @@ let npmTool =
     match isUnix with
     | true -> "/usr/local/bin/npm"
     | _ -> __SOURCE_DIRECTORY__ </> "packages/Npm.js/tools/npm.cmd"
-    
+
 let vsceTool =
     #if MONO
         "vsce"
     #else
         "packages" </> "Node.js" </> "vsce.cmd" |> FullName
     #endif
-    
+
 
 // --------------------------------------------------------------------------------------
 // Build the Generator project and run it
@@ -95,6 +95,18 @@ Target "RunScript" (fun () ->
 )
 #endif
 
+let fsgrammarDir = "paket-files/github.com/ionide/ionide-fsgrammar"
+let fsgrammarRelease = "release/grammar"
+
+Target "CopyGrammar" (fun _ ->
+    ensureDirectory fsgrammarRelease
+    CleanDir fsgrammarRelease
+    CopyFiles fsgrammarRelease [
+        fsgrammarDir </> "paket.dependencies.json"
+        fsgrammarDir </> "paket.lock.json"
+    ]
+)
+
 Target "InstallVSCE" ( fun _ ->
     killProcess "npm"
     run npmTool "install -g vsce" ""
@@ -103,12 +115,12 @@ Target "InstallVSCE" ( fun _ ->
 Target "SetVersion" (fun _ ->
     let fileName = "./release/package.json"
     let lines =
-        File.ReadAllLines fileName        
+        File.ReadAllLines fileName
         |> Seq.map (fun line ->
             if line.TrimStart().StartsWith("\"version\":") then
-                let indent = line.Substring(0,line.IndexOf("\""))                 
+                let indent = line.Substring(0,line.IndexOf("\""))
                 sprintf "%s\"version\": \"%O\"," indent release.NugetVersion
-            else line) 
+            else line)
     File.WriteAllLines(fileName,lines)
 )
 
@@ -119,12 +131,12 @@ Target "BuildPackage" ( fun _ ->
     |> Seq.iter(MoveFile "./temp/")
 )
 
-Target "PublishToGallery" ( fun _ ->       
+Target "PublishToGallery" ( fun _ ->
     let token =
         match getBuildParam "vsce-token" with
         | s when not (String.IsNullOrWhiteSpace s) -> s
         | _ -> getUserPassword "VSCE Token: "
-        
+
     killProcess "vsce"
     run vsceTool (sprintf "publish --pat %s" token) "release"
 )
@@ -153,12 +165,12 @@ Target "ReleaseGitHub" (fun _ ->
 
     Branches.tag "" release.NugetVersion
     Branches.pushTag "" remote release.NugetVersion
-    
+
     let file = !! ("./temp" </> "*.vsix") |> Seq.head
-    
+
     // release on github
     createClient user pw
-    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes 
+    |> createDraft gitOwner gitName release.NugetVersion (release.SemVer.PreRelease <> None) release.Notes
     |> uploadFile file
     |> releaseDraft
     |> Async.RunSynchronously
@@ -175,10 +187,12 @@ Target "Release" DoNothing
 "Clean"
     ==> "BuildGenerator"
     ==> "RunGenerator"
+    ==> "CopyGrammar"
     ==> "Default"
 #else
 "Clean"
     ==> "RunScript"
+    ==> "CopyGrammar"
     ==> "Default"
 #endif
 

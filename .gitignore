@@ -63,3 +63,6 @@ temp
 release.cmd
 paket-files
 issueList.md
+
+# Grammar files come from another repository
+/release/grammar/*.json
