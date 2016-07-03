@@ -12,10 +12,14 @@ NUGET
       Node.js (>= 0.12.7)
     Octokit (0.20)
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+
+GIT
+  remote: git@github.com:ionide/ionide-vscode-helpers.git
+     (b81a80ede2179222a5639cf866423d9bc6c2f0b4)
+      build: build.cmd
+  remote: git@github.com:ionide/ionide-fsgrammar.git
+     (c8fea8dc0a224a2ceb2371bc5e941157aca3de9e)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (c063bf415dac7f7d4df4c37fe76badce76cae3c3)
-      Octokit
-  remote: Ionide/ionide-vscode-helpers
-    Fable.Import.VSCode.fs (0887a6fff81bfabe722e9f584f798ff09e80de9d)
-    Helpers.fs (0887a6fff81bfabe722e9f584f798ff09e80de9d)
+    modules/Octokit/Octokit.fsx (c56456abac6b744c3bb95b217687db19fd19b367)
+      Octokit (>= 0.20)

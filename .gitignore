@@ -65,5 +65,9 @@ release.cmd
 paket-files
 issueList.md
 
+
 *.db
 *.db-wal
+
+# Grammar files come from another repository
+/release/grammar/*.json
