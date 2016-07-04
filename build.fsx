@@ -85,6 +85,18 @@ Target "Build" ( fun _ ->
     run npmTool "run build" "release"
 )
 
+let fsgrammarDir = "paket-files/github.com/ionide/ionide-fsgrammar"
+let fsgrammarRelease = "release/grammar"
+
+Target "CopyGrammar" (fun _ ->
+    ensureDirectory fsgrammarRelease
+    CleanDir fsgrammarRelease
+    CopyFiles fsgrammarRelease [
+        fsgrammarDir </> "paket.dependencies.json"
+        fsgrammarDir </> "paket.lock.json"
+    ]
+ )
+
 Target "InstallVSCE" ( fun _ ->
     killProcess "npm"
     run npmTool "install -g vsce" ""
@@ -168,6 +180,7 @@ Target "Release" DoNothing
 
 "Clean"
   ==> "Build"
+  ==> "CopyGrammar"
   ==> "Default"
 
 "Default"
