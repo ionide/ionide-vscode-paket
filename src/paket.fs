@@ -59,6 +59,7 @@ let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
 
 let UpdatePaketSilent () = Helpers.Process.spawn bootstrapperLocation "mono" ""
 let Init () = "init" |> spawnPaket
+let GenerateInstallScripts () = "generate-install-scripts" |> spawnPaket
 let Update () = "update" |> spawnPaket
 let Install () = "install" |> spawnPaket
 let Outdated () = "outdated" |> spawnPaket
@@ -73,7 +74,7 @@ let inputOptions = createEmpty<vscode.InputBoxOptions>
 let Add () =
     (vscode.window.showInputBox inputOptions)
     |> Helpers.Promise.success (fun n ->
-        if Helpers.JS.isDefined n then  sprintf "add nuget %s" n  |> spawnPaket)
+        if Helpers.JS.isDefined n then sprintf "add nuget %s" n  |> spawnPaket)
     |> ignore
 
 let AddToCurrent () =
@@ -172,3 +173,4 @@ let activate(context: vscode.ExtensionContext) =
     registerCommand "paket.UpdatePackageCurrent" UpdatePackageCurrent
     registerCommand "paket.RemovePackage" RemovePackage
     registerCommand "paket.RemovePackageCurrent" RemovePackageCurrent
+    registerCommand "paket.GenerateInstallScripts" GenerateInstallScripts
