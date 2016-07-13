@@ -18,13 +18,12 @@ let localPaketDir = vscode.workspace.rootPath </> ".paket"
 let localPaket    = localPaketDir </>  "paket.exe"
 let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
 
-let private location =
-    if fs.existsSync localPaketDir then  localPaket else
-    (Helpers.VSCode.getPluginPath "Ionide.Ionide-Paket") </> "bin" </> "paket.exe"
-
-let private bootstrapperLocation =
-    if fs.existsSync localPaketDir then  localBootstrapper else
-    (Helpers.VSCode.getPluginPath "Ionide.Ionide-Paket") </> "bin" </> "paket.bootstrapper.exe"
+let private location, private bootstrapperLocation =
+    if fs.existsSync localPaketDir then
+        localPaket, localBootstrapper
+    else
+        let pluginPath = Helpers.VSCode.getPluginPath "Ionide.Ionide-Paket"
+        pluginPath </> "bin" </> "paket.exe", pluginPath </> "bin" </> "paket.bootstrapper.exe"
 
 let private spawnPaket cmd =
     let outputChannel = vscode.window.createOutputChannel "Paket"
