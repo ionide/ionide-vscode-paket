@@ -1,5 +1,8 @@
+### 1.2.0 - 13.07.2016
+* Add Generate Install Scripts command
+
 ### 1.1.1 - 27.04.2016
-* Fix group support for update and remove 
+* Fix group support for update and remove
 
 ### 1.1.0 - 15.03.2016
 * Use local Paket if possible
