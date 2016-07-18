@@ -58,7 +58,7 @@ let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
 
 let UpdatePaketSilent () = Helpers.Process.spawn bootstrapperLocation "mono" ""
 let Init () = "init" |> spawnPaket
-let GenerateInstallScripts () = "generate-install-scripts" |> spawnPaket
+let GenerateIncludeScripts () = "generate-include-scripts" |> spawnPaket
 let Update () = "update" |> spawnPaket
 let Install () = "install" |> spawnPaket
 let Outdated () = "outdated" |> spawnPaket
@@ -172,4 +172,4 @@ let activate(context: vscode.ExtensionContext) =
     registerCommand "paket.UpdatePackageCurrent" UpdatePackageCurrent
     registerCommand "paket.RemovePackage" RemovePackage
     registerCommand "paket.RemovePackageCurrent" RemovePackageCurrent
-    registerCommand "paket.GenerateInstallScripts" GenerateInstallScripts
+    registerCommand "paket.GenerateIncludeScripts" GenerateIncludeScripts
