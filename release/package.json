@@ -1,6 +1,6 @@
 {
 	"name": "Ionide-Paket",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"publisher": "Ionide",
 	"description": "Paket (alternative NuGet client) Support",
 	"categories":[
@@ -89,8 +89,8 @@
 			"title": "Paket: Remove NuGet Package (from current project)"
 		},
 		{
-			"command": "paket.GenerateInstallScripts",
-			"title": "Paket: Generate Install Scripts"
+			"command": "paket.GenerateIncludeScripts",
+			"title": "Paket: Generate Include Scripts"
 		}],
 		"outputChannels": [
 			"Paket"

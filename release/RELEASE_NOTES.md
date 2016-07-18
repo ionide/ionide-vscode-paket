@@ -1,4 +1,4 @@
-### 1.2.0 - 13.07.2016
+### 1.2.1 - 13.07.2016
 * Add Generate Install Scripts command
 
 ### 1.1.1 - 27.04.2016
