@@ -17,6 +17,7 @@ let (</>) a b =
 let localPaketDir = vscode.workspace.rootPath </> ".paket"
 let localPaket    = localPaketDir </>  "paket.exe"
 let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
+let outputChannel = vscode.window.createOutputChannel "Paket"
 
 let private location, private bootstrapperLocation =
     if fs.existsSync localPaketDir then
@@ -26,7 +27,7 @@ let private location, private bootstrapperLocation =
         pluginPath </> "bin" </> "paket.exe", pluginPath </> "bin" </> "paket.bootstrapper.exe"
 
 let private spawnPaket cmd =
-    let outputChannel = vscode.window.createOutputChannel "Paket"
+
     outputChannel.clear ()
     outputChannel.append (location+"\n")
     vscode.window.showInformationMessage ("Paket started", "Open")
@@ -100,8 +101,8 @@ let UpdatePackage () =
     |> execPaket
     |> Helpers.Promise.success (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.success (fun n -> 
-        if Helpers.JS.isDefined n then 
+    |> Helpers.Promise.success (fun n ->
+        if Helpers.JS.isDefined n then
             let group = n.Split(' ').[0].Trim()
             let name = n.Split(' ').[1].Trim()
             sprintf "update nuget %s group %s" name group |> spawnPaket)
@@ -114,8 +115,8 @@ let UpdatePackageCurrent () =
         |> execPaket
         |> Helpers.Promise.success (handlePaketList)
         |> (unbox >> vscode.window.showQuickPick)
-        |> Helpers.Promise.success (fun n -> 
-            if Helpers.JS.isDefined n then 
+        |> Helpers.Promise.success (fun n ->
+            if Helpers.JS.isDefined n then
                 let group = n.Split(' ').[0].Trim()
                 let name = n.Split(' ').[1].Trim()
                 sprintf "update nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
@@ -128,8 +129,8 @@ let RemovePackage () =
     |> execPaket
     |> Helpers.Promise.success (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.success (fun (n :string) -> 
-        if Helpers.JS.isDefined n then 
+    |> Helpers.Promise.success (fun (n :string) ->
+        if Helpers.JS.isDefined n then
             let group = n.Split(' ').[0].Trim()
             let name = n.Split(' ').[1].Trim()
             sprintf "remove nuget %s group %s" name group |> spawnPaket)
@@ -142,8 +143,8 @@ let RemovePackageCurrent () =
         |> execPaket
         |> Helpers.Promise.success (handlePaketList)
         |> (unbox >> vscode.window.showQuickPick)
-        |> Helpers.Promise.success (fun n -> 
-            if Helpers.JS.isDefined n then 
+        |> Helpers.Promise.success (fun n ->
+            if Helpers.JS.isDefined n then
                 let group = n.Split(' ').[0].Trim()
                 let name = n.Split(' ').[1].Trim()
                 sprintf "remove nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
