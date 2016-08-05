@@ -1,3 +1,6 @@
+### 1.2.2 - 05.08.2016
+* Don't create multiple output panels
+
 ### 1.2.1 - 13.07.2016
 * Add Generate Install Scripts command
 
