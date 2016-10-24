@@ -1,4 +1,4 @@
-### 1.3.0 - 24.10.2016
+### 1.3.1 - 24.10.2016
 * Allow to install into csproj
 * Allow to use paket alpha versions
 
