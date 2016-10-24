@@ -155,7 +155,7 @@ let RemovePackageCurrent () =
     else
         vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
-let UpdatePaketToAlpha () = Helpers.Process.spawn bootstrapperLocation "mono" "prerelease"
+let UpdatePaketToAlpha () = Helpers.Process.spawn bootstrapperLocation "mono" "prerelease" |> ignore
 
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
