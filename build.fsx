@@ -85,7 +85,7 @@ Target "Build" ( fun _ ->
     run npmTool "run build" "release"
 )
 
-let fsgrammarDir = "paket-files/github.com/ionide/ionide-fsgrammar"
+let fsgrammarDir = "paket-files/github.com/ionide/ionide-fsgrammar/grammar"
 let fsgrammarRelease = "release/grammar"
 
 Target "CopyGrammar" (fun _ ->
