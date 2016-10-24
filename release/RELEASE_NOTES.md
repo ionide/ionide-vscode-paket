@@ -1,3 +1,7 @@
+### 1.2.4 - 24.10.2016
+* Allow to install into csproj
+* Allow to use paket alpha versions
+
 ### 1.2.2 - 05.08.2016
 * Don't create multiple output panels
 
