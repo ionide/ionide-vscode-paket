@@ -183,4 +183,4 @@ let activate(context: vscode.ExtensionContext) =
     registerCommand "paket.RemovePackageCurrent" RemovePackageCurrent
     registerCommand "paket.GenerateIncludeScripts" GenerateIncludeScripts
 
-    registerCommand "paket.UpdatePaketToAlpha" UpdatePaketToAlpha
+    registerCommand "paket.UpdatePaketToPrerelease" UpdatePaketToAlpha

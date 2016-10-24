@@ -91,6 +91,10 @@
 		{
 			"command": "paket.GenerateIncludeScripts",
 			"title": "Paket: Generate Include Scripts"
+		},
+		{
+			"command": "paket.UpdatePaketToPrerelease",
+			"title": "Paket: Use Paket prerelease"
 		}],
 		"outputChannels": [
 			"Paket"
@@ -112,7 +116,8 @@
 		"onCommand:paket.UpdatePackage",
 		"onCommand:paket.UpdatePackageCurrent",
 		"onCommand:paket.RemovePackage",
-		"onCommand:paket.RemovePackageCurrent"
+		"onCommand:paket.RemovePackageCurrent",
+		"onCommand:paket.UpdatePaketToPrerelease"
 	],
 	"scripts": {
 		"build": "fable ../src/Ionide.Paket.fsproj -s -o ../release -m commonjs"
