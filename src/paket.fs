@@ -1,3 +1,4 @@
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Ionide.VSCode.PaketService
 
 open System
@@ -7,8 +8,10 @@ open Fable.Core
 open Fable.Import
 open Fable.Import.Browser
 open Fable.Import.Node
-open Fable.Import.Node.child_process
+open Fable.Import.Node.child_process_types
+open Fable.Core.JsInterop
 
+open Ionide.VSCode
 let (</>) a b =
     if Helpers.Process.isWin ()
     then a + @"\" + b
@@ -34,7 +37,7 @@ let private spawnPaket cmd =
     outputChannel.clear ()
     outputChannel.append (location+"\n")
     vscode.window.showInformationMessage ("Paket started", "Open")
-    |> Helpers.Promise.success(fun n ->
+    |> Helpers.Promise.map(fun n ->
         if n = "Open" then outputChannel.show (2 |> unbox) )
     |> ignore
 
@@ -76,7 +79,7 @@ let inputOptions = createEmpty<vscode.InputBoxOptions>
 
 let Add () =
     (vscode.window.showInputBox inputOptions)
-    |> Helpers.Promise.success (fun n ->
+    |> Helpers.Promise.map (fun n ->
         if Helpers.JS.isDefined n then sprintf "add nuget %s" n  |> spawnPaket)
     |> ignore
 
@@ -84,7 +87,7 @@ let AddToCurrent () =
     let fn = vscode.window.activeTextEditor.document.fileName
     if isProject fn then
         (vscode.window.showInputBox inputOptions)
-        |> Helpers.Promise.success (fun n ->
+        |> Helpers.Promise.map (fun n ->
             if Helpers.JS.isDefined n then sprintf "add nuget %s project \"%s\"" n fn |> spawnPaket)
         |> ignore
     else
@@ -93,18 +96,18 @@ let AddToCurrent () =
 let UpdateGroup () =
     "show-groups -s"
     |> execPaket
-    |> Helpers.Promise.success (handlePaketList)
+    |> Helpers.Promise.map (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.success (fun n ->
+    |> Helpers.Promise.map (fun n ->
         if Helpers.JS.isDefined n then sprintf "update group %s" n |> spawnPaket)
     |> ignore
 
 let UpdatePackage () =
     "show-installed-packages -s"
     |> execPaket
-    |> Helpers.Promise.success (handlePaketList)
+    |> Helpers.Promise.map (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.success (fun n ->
+    |> Helpers.Promise.map (fun n ->
         if Helpers.JS.isDefined n then
             let group = n.Split(' ').[0].Trim()
             let name = n.Split(' ').[1].Trim()
@@ -116,9 +119,9 @@ let UpdatePackageCurrent () =
     if isProject fn then
         "show-installed-packages -s"
         |> execPaket
-        |> Helpers.Promise.success (handlePaketList)
+        |> Helpers.Promise.map (handlePaketList)
         |> (unbox >> vscode.window.showQuickPick)
-        |> Helpers.Promise.success (fun n ->
+        |> Helpers.Promise.map (fun n ->
             if Helpers.JS.isDefined n then
                 let group = n.Split(' ').[0].Trim()
                 let name = n.Split(' ').[1].Trim()
@@ -130,9 +133,9 @@ let UpdatePackageCurrent () =
 let RemovePackage () =
     "show-installed-packages -s"
     |> execPaket
-    |> Helpers.Promise.success (handlePaketList)
+    |> Helpers.Promise.map (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.success (fun (n :string) ->
+    |> Helpers.Promise.map (fun (n :string) ->
         if Helpers.JS.isDefined n then
             let group = n.Split(' ').[0].Trim()
             let name = n.Split(' ').[1].Trim()
@@ -144,9 +147,9 @@ let RemovePackageCurrent () =
     if isProject fn then
         "show-installed-packages -s"
         |> execPaket
-        |> Helpers.Promise.success (handlePaketList)
+        |> Helpers.Promise.map (handlePaketList)
         |> (unbox >> vscode.window.showQuickPick)
-        |> Helpers.Promise.success (fun n ->
+        |> Helpers.Promise.map (fun n ->
             if Helpers.JS.isDefined n then
                 let group = n.Split(' ').[0].Trim()
                 let name = n.Split(' ').[1].Trim()
