@@ -23,14 +23,20 @@ let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsW
 
 let localPaket    = localPaketDir </>  "paket.exe"
 let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
+
+let pluginPath = Helpers.VSCode.getPluginPath "Ionide.Ionide-Paket"
+
+let pluginBootstrapper = pluginPath </> "bin" </> "paket.bootstrapper.exe"
+
+let pluginPaket = pluginPath </> "bin" </> "paket.exe"
+
 let outputChannel = vscode.window.createOutputChannel "Paket"
 
-let private location, private bootstrapperLocation =
+let private location, private bootstrapperLocation, private localTools =
     if fs.existsSync localPaketDir then
-        localPaket, localBootstrapper
+        localPaket, localBootstrapper, true
     else
-        let pluginPath = Helpers.VSCode.getPluginPath "Ionide.Ionide-Paket"
-        pluginPath </> "bin" </> "paket.exe", pluginPath </> "bin" </> "paket.bootstrapper.exe"
+        pluginPaket, pluginBootstrapper, false
 
 let private spawnPaket cmd =
 
@@ -158,12 +164,14 @@ let RemovePackageCurrent () =
     else
         vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
-let UpdatePaketToAlpha () = Helpers.Process.spawn bootstrapperLocation "mono" "prerelease" |> ignore
+let UpdatePaketToAlpha () =
+    Helpers.Process.spawn pluginBootstrapper "mono" "prerelease" |> ignore
 
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
         vscode.commands.registerCommand(com, unbox f)
         |> context.subscriptions.Add
+
     UpdatePaketSilent () |> ignore
     registerCommand "paket.Init" Init
     registerCommand "paket.Install" Install
