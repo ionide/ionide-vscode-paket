@@ -1,3 +1,6 @@
+### 1.4.0 - 15.11.2016
+* Convert some messages to status bar messages
+
 ### 1.3.2 - 24.10.2016
 * Allow to install into csproj
 * Allow to use paket alpha versions
