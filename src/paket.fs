@@ -55,7 +55,9 @@ let private spawnPaket cmd =
         if code.ToString() ="0" then
             vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
         else
-            vscode.window.showErrorMessage "Paket failed" |> ignore)
+            vscode.window.showErrorMessage("Paket failed", "Show")
+            |> Helpers.Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+            |> ignore)
     |> ignore
 
 let private execPaket cmd =
