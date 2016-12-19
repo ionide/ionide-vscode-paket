@@ -98,7 +98,20 @@
 		}],
 		"outputChannels": [
 			"Paket"
-		]
+		],
+		"configuration": {
+
+			"type": "object",
+			"title": "Paket configuration",
+			"properties": {
+				"Paket.autoshow": {
+					"type": "boolean",
+					"default": true,
+					"description": "Automatically shows Paket output panel"
+				}
+			}
+		}
+
 	},
 	"activationEvents": [
     "onCommand:paket.Init",

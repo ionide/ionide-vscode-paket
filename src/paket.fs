@@ -38,11 +38,16 @@ let private location, private bootstrapperLocation, private localTools =
     else
         pluginPaket, pluginBootstrapper, false
 
+let getConfig () =
+    let cfg = vscode.workspace.getConfiguration()
+    cfg.get ("Paket.autoshow", true)
+
 let private spawnPaket cmd =
 
     outputChannel.clear ()
     outputChannel.append (location+"\n")
     let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+    if getConfig () then outputChannel.show ()
 
     Helpers.Process.spawnWithNotification location "mono" cmd outputChannel
     |> Helpers.Process.onExit(fun (code) ->
