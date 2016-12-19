@@ -1,3 +1,8 @@
+### 1.5.0 - 19.12.2016
+* Fix printing out Paket error messages
+* Add automatic showing of output panel
+* Add `Show` action for error message
+
 ### 1.4.0 - 15.11.2016
 * Convert some messages to status bar messages
 
