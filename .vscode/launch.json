@@ -10,7 +10,7 @@
 			"runtimeExecutable": "${execPath}",
 			"args": ["--extensionDevelopmentPath=${workspaceRoot}/release" ],
 			"stopOnEntry": false,
-			"sourceMaps": true,
+			"sourceMaps": false,
 			"outDir": "${workspaceRoot}/release"
 		}
 	]

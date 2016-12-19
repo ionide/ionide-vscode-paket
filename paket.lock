@@ -1,6 +1,6 @@
 NUGET
   remote: https://www.nuget.org/api/v2
-    FAKE (4.41.8)
+    FAKE (4.47)
     Microsoft.Bcl (1.1.10) - framework: net10, net11, net20, net30, net35, net40, net40-full
       Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Bcl.Build (1.0.21) - import_targets: false, framework: net10, net11, net20, net30, net35, net40, net40-full
@@ -14,14 +14,14 @@ NUGET
       Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
 GIT
   remote: git@github.com:ionide/ionide-vscode-helpers.git
-     (7bad9b1085f6348df587792e037fd5b0a55a5432)
+     (d8b7eb02e5776ced8802236a4c010d6919a99fca)
       build: build.cmd
   remote: git@github.com:ionide/ionide-fsgrammar.git
-     (dd4f7025fc7a60f841ee30909873444147f766d4)
+     (a7ffcf40a20c666c2cc03f80661881c3c2e31027)
 GITHUB
   remote: fsharp/FAKE
-    modules/Octokit/Octokit.fsx (4e4428bfe931a5f720e32f9d69289d25eb16d467)
+    modules/Octokit/Octokit.fsx (954b349a91b815a707941dd0be0dfda124f51da9)
       Octokit (>= 0.20)
   remote: Ionide/ionide-vscode-helpers
-    Fable.Import.VSCode.fs (7bad9b1085f6348df587792e037fd5b0a55a5432)
-    Helpers.fs (7bad9b1085f6348df587792e037fd5b0a55a5432)
+    Fable.Import.VSCode.fs (d8b7eb02e5776ced8802236a4c010d6919a99fca)
+    Helpers.fs (d8b7eb02e5776ced8802236a4c010d6919a99fca)
