@@ -19,7 +19,7 @@
 	"engines": {
 		"vscode": "^0.10.0"
 	},
-	"main": "./paket",
+	"main": "./src/paket",
 	"contributes": {
 		"languages": [{
             "id": "paket-dependencies",
