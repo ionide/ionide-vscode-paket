@@ -19,7 +19,7 @@
 	"engines": {
 		"vscode": "^0.10.0"
 	},
-	"main": "./src/paket",
+	"main": "./paket",
 	"contributes": {
 		"languages": [{
             "id": "paket-dependencies",
@@ -137,11 +137,11 @@
 	},
 	"devDependencies": {
 		"vscode": "*",
-		"fable-compiler": "*"
+		"fable-compiler": "0.6.x"
 	},
 	"dependencies": {
 		"path": "*",
         "toml":"*",
-		"fable-core": "*"
+		"fable-core": "0.6.x"
 	}
 }
