@@ -42,23 +42,27 @@ let getConfig () =
     let cfg = vscode.workspace.getConfiguration()
     cfg.get ("Paket.autoshow", true)
 
+let UpdatePaketSilent () = Helpers.Process.exec bootstrapperLocation "mono" ""
+
 let private spawnPaket cmd =
+    if not (fs.existsSync location) then UpdatePaketSilent () else Helpers.Promise.empty
+    |> Helpers.Promise.onSuccess (fun _ ->
+        outputChannel.clear ()
+        outputChannel.append (location+"\n")
+        let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+        if getConfig () then outputChannel.show ()
 
-    outputChannel.clear ()
-    outputChannel.append (location+"\n")
-    let startedMessage = vscode.window.setStatusBarMessage "Paket started"
-    if getConfig () then outputChannel.show ()
-
-    Helpers.Process.spawnWithNotification location "mono" cmd outputChannel
-    |> Helpers.Process.onExit(fun (code) ->
-        startedMessage.dispose() |> ignore
-        if code.ToString() ="0" then
-            vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
-        else
-            vscode.window.showErrorMessage("Paket failed", "Show")
-            |> Helpers.Promise.map (fun n -> if n = "Show" then outputChannel.show () )
-            |> ignore)
-    |> ignore
+        Helpers.Process.spawnWithNotification location "mono" cmd outputChannel
+        |> Helpers.Process.onExit(fun (code) ->
+            startedMessage.dispose() |> ignore
+            if code.ToString() ="0" then
+                vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
+            else
+                vscode.window.showErrorMessage("Paket failed", "Show")
+                |> Helpers.Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                |> ignore)
+        |> ignore
+    ) |> ignore
 
 let private execPaket cmd =
     if not (fs.existsSync location) then
@@ -74,7 +78,6 @@ let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
         stdout.toString().Split('\n')
         |> Array.filter((<>) "" )
 
-let UpdatePaketSilent () = Helpers.Process.spawn bootstrapperLocation "mono" ""
 let Init () = "init" |> spawnPaket
 let GenerateIncludeScripts () = "generate-include-scripts" |> spawnPaket
 let Update () = "update" |> spawnPaket
@@ -177,7 +180,6 @@ let activate(context: vscode.ExtensionContext) =
         vscode.commands.registerCommand(com, unbox<Func<obj,obj>> f)
         |> context.subscriptions.Add
 
-    UpdatePaketSilent () |> ignore
     registerCommand "paket.Init" Init
     registerCommand "paket.Install" Install
     registerCommand "paket.Update" Update
