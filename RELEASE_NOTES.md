@@ -1,3 +1,6 @@
+### 1.5.1 - 18.01.2017
+* Check if `paket.exe` exists before every command.
+
 ### 1.5.0 - 19.12.2016
 * Fix printing out Paket error messages
 * Add automatic showing of output panel
