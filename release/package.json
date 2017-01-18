@@ -29,6 +29,10 @@
             "id": "paket-lock",
             "aliases": ["paket.lock"],
             "extensions": ["paket.lock"]
+        },{
+            "id": "paket-references",
+            "aliases": ["paket.references"],
+            "extensions": ["paket.references"]
         }],
         "grammars": [{
             "language": "paket-dependencies",
@@ -114,7 +118,10 @@
 
 	},
 	"activationEvents": [
-    "onCommand:paket.Init",
+		"onLanguage:paket-dependencies",
+		"onLanguage:paket-lock",
+		"onLanguage:paket-references",
+    	"onCommand:paket.Init",
 		"onCommand:paket.Install",
 		"onCommand:paket.Update",
 		"onCommand:paket.Outdated",

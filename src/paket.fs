@@ -6,14 +6,15 @@ open System.Text.RegularExpressions
 
 open Fable.Core
 open Fable.Import
-open Fable.Import.Browser
 open Fable.Import.Node
 open Fable.Import.Node.child_process_types
 open Fable.Core.JsInterop
 
 open Ionide.VSCode
+open Fable.Import.vscode
+open Ionide.VSCode.Helpers
 let (</>) a b =
-    if Helpers.Process.isWin ()
+    if Process.isWin ()
     then a + @"\" + b
     else a + "/" + b
 
@@ -24,7 +25,7 @@ let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsW
 let localPaket    = localPaketDir </>  "paket.exe"
 let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
 
-let pluginPath = Helpers.VSCode.getPluginPath "Ionide.Ionide-Paket"
+let pluginPath = VSCode.getPluginPath "Ionide.Ionide-Paket"
 
 let pluginBootstrapper = pluginPath </> "bin" </> "paket.bootstrapper.exe"
 
@@ -42,34 +43,34 @@ let getConfig () =
     let cfg = vscode.workspace.getConfiguration()
     cfg.get ("Paket.autoshow", true)
 
-let UpdatePaketSilent () = Helpers.Process.exec bootstrapperLocation "mono" ""
+let UpdatePaketSilent () = Process.exec bootstrapperLocation "mono" ""
 
 let private spawnPaket cmd =
-    if not (fs.existsSync location) then UpdatePaketSilent () else Helpers.Promise.empty
-    |> Helpers.Promise.onSuccess (fun _ ->
+    if not (fs.existsSync location) then UpdatePaketSilent () else Promise.empty
+    |> Promise.onSuccess (fun _ ->
         outputChannel.clear ()
         outputChannel.append (location+"\n")
         let startedMessage = vscode.window.setStatusBarMessage "Paket started"
         if getConfig () then outputChannel.show ()
 
-        Helpers.Process.spawnWithNotification location "mono" cmd outputChannel
-        |> Helpers.Process.onExit(fun (code) ->
+        Process.spawnWithNotification location "mono" cmd outputChannel
+        |> Process.onExit(fun (code) ->
             startedMessage.dispose() |> ignore
             if code.ToString() ="0" then
                 vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
             else
                 vscode.window.showErrorMessage("Paket failed", "Show")
-                |> Helpers.Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
                 |> ignore)
         |> ignore
     ) |> ignore
 
 let private execPaket cmd =
     if not (fs.existsSync location) then
-        Helpers.Process.exec bootstrapperLocation "mono" ""
-        |> Helpers.Promise.bind (fun _ -> Helpers.Process.exec location "mono" cmd)
+        Process.exec bootstrapperLocation "mono" ""
+        |> Promise.bind (fun _ -> Process.exec location "mono" cmd)
     else
-    Helpers.Process.exec location "mono" cmd
+    Process.exec location "mono" cmd
 
 let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
     if(stdout.toString() = "") then
@@ -93,16 +94,16 @@ let inputOptions = createEmpty<vscode.InputBoxOptions>
 
 let Add () =
     (vscode.window.showInputBox inputOptions)
-    |> Helpers.Promise.map (fun n ->
-        if Helpers.JS.isDefined n then sprintf "add nuget %s" n  |> spawnPaket)
+    |> Promise.map (fun n ->
+        if JS.isDefined n then sprintf "add nuget %s" n  |> spawnPaket)
     |> ignore
 
 let AddToCurrent () =
     let fn = vscode.window.activeTextEditor.document.fileName
     if isProject fn then
         (vscode.window.showInputBox inputOptions)
-        |> Helpers.Promise.map (fun n ->
-            if Helpers.JS.isDefined n then sprintf "add nuget %s project \"%s\"" n fn |> spawnPaket)
+        |> Promise.map (fun n ->
+            if JS.isDefined n then sprintf "add nuget %s project \"%s\"" n fn |> spawnPaket)
         |> ignore
     else
         vscode.window.showErrorMessage "project file needs to be opened" |> ignore
@@ -110,19 +111,19 @@ let AddToCurrent () =
 let UpdateGroup () =
     "show-groups -s"
     |> execPaket
-    |> Helpers.Promise.map (handlePaketList)
+    |> Promise.map (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.map (fun n ->
-        if Helpers.JS.isDefined n then sprintf "update group %s" n |> spawnPaket)
+    |> Promise.map (fun n ->
+        if JS.isDefined n then sprintf "update group %s" n |> spawnPaket)
     |> ignore
 
 let UpdatePackage () =
     "show-installed-packages -s"
     |> execPaket
-    |> Helpers.Promise.map (handlePaketList)
+    |> Promise.map (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.map (fun n ->
-        if Helpers.JS.isDefined n then
+    |> Promise.map (fun n ->
+        if JS.isDefined n then
             let group = n.Split(' ').[0].Trim()
             let name = n.Split(' ').[1].Trim()
             sprintf "update nuget %s group %s" name group |> spawnPaket)
@@ -133,10 +134,10 @@ let UpdatePackageCurrent () =
     if isProject fn then
         "show-installed-packages -s"
         |> execPaket
-        |> Helpers.Promise.map (handlePaketList)
+        |> Promise.map (handlePaketList)
         |> (unbox >> vscode.window.showQuickPick)
-        |> Helpers.Promise.map (fun n ->
-            if Helpers.JS.isDefined n then
+        |> Promise.map (fun n ->
+            if JS.isDefined n then
                 let group = n.Split(' ').[0].Trim()
                 let name = n.Split(' ').[1].Trim()
                 sprintf "update nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
@@ -147,10 +148,10 @@ let UpdatePackageCurrent () =
 let RemovePackage () =
     "show-installed-packages -s"
     |> execPaket
-    |> Helpers.Promise.map (handlePaketList)
+    |> Promise.map (handlePaketList)
     |> (unbox >> vscode.window.showQuickPick)
-    |> Helpers.Promise.map (fun (n :string) ->
-        if Helpers.JS.isDefined n then
+    |> Promise.map (fun (n :string) ->
+        if JS.isDefined n then
             let group = n.Split(' ').[0].Trim()
             let name = n.Split(' ').[1].Trim()
             sprintf "remove nuget %s group %s" name group |> spawnPaket)
@@ -161,10 +162,10 @@ let RemovePackageCurrent () =
     if isProject fn then
         "show-installed-packages -s"
         |> execPaket
-        |> Helpers.Promise.map (handlePaketList)
+        |> Promise.map (handlePaketList)
         |> (unbox >> vscode.window.showQuickPick)
-        |> Helpers.Promise.map (fun n ->
-            if Helpers.JS.isDefined n then
+        |> Promise.map (fun n ->
+            if JS.isDefined n then
                 let group = n.Split(' ').[0].Trim()
                 let name = n.Split(' ').[1].Trim()
                 sprintf "remove nuget %s project \"%s\" group %s" name fn group |> spawnPaket)
@@ -173,12 +174,129 @@ let RemovePackageCurrent () =
         vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
 let UpdatePaketToAlpha () =
-    Helpers.Process.spawn pluginBootstrapper "mono" "prerelease" |> ignore
+    Process.spawn pluginBootstrapper "mono" "prerelease" |> ignore
+
+[<Emit("setTimeout($0,$1)")>]
+let setTimeout(cb, delay) : obj = failwith "JS Only"
+
+let private createDependenciesProvider () =
+    let mutable resolve : (string -> unit) option = Some ignore
+    let mutable reject : (string -> unit) option = Some ignore
+    let mutable answer = ""
+    let mutable busy = true
+
+    let proc =
+        Process.spawn pluginPaket "mono" "find-packages"
+        |> Process.onOutput (fun n ->
+            resolve |> Option.iter (fun res ->
+                let output = n.ToString()
+                answer <- answer + output
+                if answer.Contains "Please enter search text" then
+                    res answer
+                    resolve <- None
+                    reject <- None
+                    answer <- ""
+                    busy <-false ))
+        |> Process.onErrorOutput (fun n ->
+            reject |> Option.iter (fun rej ->
+                let output = n.ToString()
+                rej answer
+                resolve <- None
+                reject <- None
+                answer <- ""
+                busy <-false ))
+
+    let delay ms =
+        Promise.create(fun res rej -> setTimeout(res, ms) |> ignore )
+
+    let rec send (cmd : string) =
+        if not busy then
+            busy <- true
+            proc.stdin?write $ (cmd + "\n")
+            Promise.create (fun res rej ->
+                resolve <- Some res
+                reject <- Some rej )
+        else
+            delay 100
+            |> Promise.bind (fun _ -> send cmd)
+
+
+
+    {   new CompletionItemProvider
+        with
+            member this.provideCompletionItems(doc, pos, ct) =
+                promise {
+                    let range = doc.getWordRangeAtPosition pos
+                    let line = doc.getText( Range(pos.line,0.,pos.line,1000.) )
+                    let tags = line.Split(' ') |> Array.filter ((<>) "")
+                    let word = doc.getText range
+                    let! response =
+                        if tags.Length = 1 then
+                            ["nuget"; "git"; "github"; "http"; "gist"; "versions"; "source"; "group";
+                             "references: strinct"; "framework:"; "content: none"; "copy_content_to_output_dir: always";
+                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "nuget" && JS.isDefined range && tags.Length = 2 then
+                            send word
+                        elif tags.[0] = "source" && JS.isDefined range && tags.Length = 2 then
+                            [ "https://api.nuget.org/v3/index.json"
+                              "https://nuget.org/api/v2"]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "framework:" && JS.isDefined range && tags.Length = 2 then
+                            [ "net35"; "net40"; "net45"; "net46"; "auto-detect"]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "redirects:" && JS.isDefined range && tags.Length = 2 then
+                            [ "on"; "off"; "force"; ]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "strategy:" && JS.isDefined range && tags.Length = 2 then
+                            [ "min"; "max"; ]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "lowest_matching:" && JS.isDefined range && tags.Length = 2 then
+                            [ "true"; "false"; ]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "import_targets:" && JS.isDefined range && tags.Length = 2 then
+                            [ "true"; "false"; ]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        elif tags.[0] = "copy_local:" && JS.isDefined range && tags.Length = 2 then
+                            [ "true"; "false"; ]
+                            |> String.concat "\n"
+                            |> Promise.lift
+                        else
+                            Promise.lift ""
+                    return
+                        response.Split '\n'
+                        |> Seq.map(fun n -> CompletionItem <| n.Trim())
+                        |> ResizeArray
+                } |> Case2
+
+            member this.resolveCompletionItem(sug, ct) =
+                promise {
+                    return sug
+                } |> Case2
+    }
+
+
 
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
         vscode.commands.registerCommand(com, unbox<Func<obj,obj>> f)
         |> context.subscriptions.Add
+
+
+    let df = createEmpty<DocumentFilter>
+    df.language <- Some "paket-dependencies"
+    let selector : DocumentSelector = df |> U3.Case2
+
+
+    languages.registerCompletionItemProvider(selector, createDependenciesProvider())
+    |> ignore
 
     registerCommand "paket.Init" Init
     registerCommand "paket.Install" Install
