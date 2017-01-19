@@ -1,3 +1,7 @@
+### 1.6.0
+* Autocomplete for `paket.dependencies` file
+* Autocomplete for `paket.references` file.
+
 ### 1.5.1 - 18.01.2017
 * Check if `paket.exe` exists before every command.
 

@@ -282,7 +282,22 @@ let private createDependenciesProvider () =
                 } |> Case2
     }
 
+let private createReferencesProvider () =
+    {   new CompletionItemProvider
+        with
+            member this.provideCompletionItems(doc, pos, ct) =
+                "show-installed-packages -s"
+                |> execPaket
+                |> Promise.map (handlePaketList)
+                |> Promise.map (Seq.map(fun n -> n.Trim().Split(' ').[1] |> CompletionItem ))
+                |> Promise.map (ResizeArray)
+                |> Case2
 
+            member this.resolveCompletionItem(sug, ct) =
+                promise {
+                    return sug
+                } |> Case2
+    }
 
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
@@ -294,9 +309,17 @@ let activate(context: vscode.ExtensionContext) =
     df.language <- Some "paket-dependencies"
     let selector : DocumentSelector = df |> U3.Case2
 
+    let df = createEmpty<DocumentFilter>
+    df.language <- Some "paket-references"
+    let referencesSelector : DocumentSelector = df |> U3.Case2
+
 
     languages.registerCompletionItemProvider(selector, createDependenciesProvider())
     |> ignore
+
+    languages.registerCompletionItemProvider(referencesSelector, createReferencesProvider())
+    |> ignore
+
 
     registerCommand "paket.Init" Init
     registerCommand "paket.Install" Install
