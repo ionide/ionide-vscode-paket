@@ -1,3 +1,6 @@
+### 1.6.1 - 06.02.2017
+* Add `GenerateIncludeScripts` to activation events.
+
 ### 1.6.0
 * Autocomplete for `paket.dependencies` file
 * Autocomplete for `paket.references` file.
