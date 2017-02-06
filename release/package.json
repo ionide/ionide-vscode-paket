@@ -137,7 +137,8 @@
 		"onCommand:paket.UpdatePackageCurrent",
 		"onCommand:paket.RemovePackage",
 		"onCommand:paket.RemovePackageCurrent",
-		"onCommand:paket.UpdatePaketToPrerelease"
+		"onCommand:paket.UpdatePaketToPrerelease",
+		"onCommand:paket.GenerateIncludeScripts"
 	],
 	"scripts": {
 		"build": "fable ../src/Ionide.Paket.fsproj -s -o ../release -m commonjs"
