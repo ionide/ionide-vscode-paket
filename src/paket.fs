@@ -25,7 +25,7 @@ let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsW
 let localPaket    = localPaketDir </>  "paket.exe"
 let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
 
-let pluginPath = VSCode.getPluginPath "Ionide.Ionide-Paket"
+let pluginPath = VSCode.getPluginPath "Ionide.ionide-paket"
 
 let pluginBootstrapper = pluginPath </> "bin" </> "paket.bootstrapper.exe"
 
