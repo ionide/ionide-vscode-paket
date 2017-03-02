@@ -1,3 +1,6 @@
+### 1.6.3 - 03.03.2017
+* Handle both cases in `getPluginPath`
+
 ### 1.6.2 - 02.03.2017
 * Breaking change in `getPluginPath`
 
