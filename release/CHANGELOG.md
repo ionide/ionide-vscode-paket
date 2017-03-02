@@ -1,3 +1,6 @@
+### 1.6.2 - 02.03.2017
+* Breaking change in `getPluginPath`
+
 ### 1.6.1 - 06.02.2017
 * Add `GenerateIncludeScripts` to activation events.
 
