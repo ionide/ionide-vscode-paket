@@ -296,6 +296,13 @@ let private createReferencesProvider () =
                 } |> Case2
     }
 
+let private saveHandler (doc : TextDocument) =
+    let config =
+        let cfg = vscode.workspace.getConfiguration()
+        cfg.get ("Paket.autoInstall", false)
+    if (doc.fileName.EndsWith "paket.references" || doc.fileName.EndsWith "paket.dependencies" ) && config then
+        Install ()
+
 let activate(context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
         vscode.commands.registerCommand(com, unbox<Func<obj,obj>> f)
@@ -315,6 +322,9 @@ let activate(context: vscode.ExtensionContext) =
     |> ignore
 
     languages.registerCompletionItemProvider(referencesSelector, createReferencesProvider())
+    |> ignore
+
+    workspace.onDidSaveTextDocument.Invoke(unbox saveHandler, null, unbox context.subscriptions)
     |> ignore
 
 

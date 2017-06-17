@@ -112,6 +112,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "Automatically shows Paket output panel"
+				},
+				"Paket.autoInstall": {
+					"type": "boolean",
+					"default": false,
+					"description": "Automatically runs Paket Install on paket.dependencies and paket.references save"
 				}
 			}
 		}
