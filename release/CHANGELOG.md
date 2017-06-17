@@ -1,3 +1,8 @@
+### 1.7.0 - 17.06.2017
+* Add check whether workspace is ope
+* Add automatic Paket Install on file save
+* Support `generate_load_scripts` in `paket.dependencies` autocomplete
+
 ### 1.6.3 - 03.03.2017
 * Handle both cases in `getPluginPath`
 
