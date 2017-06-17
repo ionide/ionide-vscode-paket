@@ -51,31 +51,40 @@ let getConfig () =
 let UpdatePaketSilent () = Process.exec bootstrapperLocation "mono" ""
 
 let private spawnPaket cmd =
-    if not (fs.existsSync location) then UpdatePaketSilent () else Promise.empty
-    |> Promise.onSuccess (fun _ ->
-        outputChannel.clear ()
-        outputChannel.append (location+"\n")
-        let startedMessage = vscode.window.setStatusBarMessage "Paket started"
-        if getConfig () then outputChannel.show ()
-
-        Process.spawnWithNotification location "mono" cmd outputChannel
-        |> Process.onExit(fun (code) ->
-            startedMessage.dispose() |> ignore
-            if code.ToString() ="0" then
-                vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
-            else
-                vscode.window.showErrorMessage("Paket failed", "Show")
-                |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
-                |> ignore)
+    if workspace.rootPath = null then
+        window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
-    ) |> ignore
+    else
+        if not (fs.existsSync location) then UpdatePaketSilent () else Promise.empty
+        |> Promise.onSuccess (fun _ ->
+            outputChannel.clear ()
+            outputChannel.append (location+"\n")
+            let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+            if getConfig () then outputChannel.show ()
+
+            Process.spawnWithNotification location "mono" cmd outputChannel
+            |> Process.onExit(fun (code) ->
+                startedMessage.dispose() |> ignore
+                if code.ToString() ="0" then
+                    vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
+                else
+                    vscode.window.showErrorMessage("Paket failed", "Show")
+                    |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                    |> ignore)
+            |> ignore
+        ) |> ignore
 
 let private execPaket cmd =
-    if not (fs.existsSync location) then
-        Process.exec bootstrapperLocation "mono" ""
-        |> Promise.bind (fun _ -> Process.exec location "mono" cmd)
+    if workspace.rootPath <> null then
+        if not (fs.existsSync location) then
+            Process.exec bootstrapperLocation "mono" ""
+            |> Promise.bind (fun _ -> Process.exec location "mono" cmd)
+        else
+        Process.exec location "mono" cmd
     else
-    Process.exec location "mono" cmd
+        window.showErrorMessage("Paket can be run only if folder is open")
+        |> ignore
+        Promise.reject "Paket can be run only if folder is open"
 
 let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
     if(stdout.toString() = "") then
