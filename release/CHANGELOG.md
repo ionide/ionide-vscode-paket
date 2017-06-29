@@ -1,3 +1,6 @@
+### 1.7.1 - 29.06.2017
+* Search binaries also in the root of the workspace
+
 ### 1.7.0 - 17.06.2017
 * Add check whether workspace is ope
 * Add automatic Paket Install on file save
