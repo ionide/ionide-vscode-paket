@@ -22,9 +22,6 @@ let localPaketDir = vscode.workspace.rootPath </> ".paket"
 
 let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsWith(".csproj") || fileName.EndsWith(".vbproj")
 
-let localPaket    = localPaketDir </>  "paket.exe"
-let localBootstrapper = localPaketDir </> "paket.bootstrapper.exe"
-
 let pluginPath =
     try
         VSCode.getPluginPath "Ionide.ionide-paket"
@@ -32,59 +29,80 @@ let pluginPath =
     | _ ->
         VSCode.getPluginPath "Ionide.Ionide-Paket"
 
-let pluginBootstrapper = pluginPath </> "bin" </> "paket.bootstrapper.exe"
+let pluginBinPath = pluginPath </> "bin"
 
-let pluginPaket = pluginPath </> "bin" </> "paket.exe"
+let potentialDirectories =
+    [
+        vscode.workspace.rootPath
+        vscode.workspace.rootPath </> ".paket"
+        pluginBinPath
+    ]
+
+let findBinary name =
+    potentialDirectories
+    |> List.map (fun dir -> dir </> name)
+    |> List.tryFind fs.existsSync
+
+let pluginPaket = pluginBinPath </> "paket.exe"
+let pluginBootstrapper = pluginBinPath </> "paket.bootstrapper.exe"
+let getPaketPath () = findBinary "paket.exe"
+let getBootstrapperPath () = findBinary "paket.bootstrapper.exe"
 
 let outputChannel = vscode.window.createOutputChannel "Paket"
-
-let private location, private bootstrapperLocation, private localTools =
-    if fs.existsSync localPaketDir then
-        localPaket, localBootstrapper, true
-    else
-        pluginPaket, pluginBootstrapper, false
 
 let getConfig () =
     let cfg = vscode.workspace.getConfiguration()
     cfg.get ("Paket.autoshow", true)
 
-let UpdatePaketSilent () = Process.exec bootstrapperLocation "mono" ""
+let UpdatePaketSilent () =
+    match getBootstrapperPath () with
+    | Some path -> Process.exec path "mono" ""
+    | None -> Promise.empty
+
+let runWithPaketLocation f =
+    match getPaketPath () with
+    | Some location ->
+        f location
+    | None ->
+        vscode.window.showErrorMessage "Unable to find paket.exe"
+        |> Promise.bind (fun _ -> Promise.reject "Unable to find paket.exe")
 
 let private spawnPaket cmd =
     if workspace.rootPath = null then
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
     else
-        if not (fs.existsSync location) then UpdatePaketSilent () else Promise.empty
-        |> Promise.onSuccess (fun _ ->
-            outputChannel.clear ()
-            outputChannel.append (location+"\n")
-            let startedMessage = vscode.window.setStatusBarMessage "Paket started"
-            if getConfig () then outputChannel.show ()
+        UpdatePaketSilent ()
+        |> Promise.bind (fun _ ->
+            runWithPaketLocation (fun location ->
+                outputChannel.clear ()
+                outputChannel.append (location+"\n")
+                let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+                if getConfig () then outputChannel.show ()
 
-            Process.spawnWithNotification location "mono" cmd outputChannel
-            |> Process.onExit(fun (code) ->
-                startedMessage.dispose() |> ignore
-                if code.ToString() ="0" then
-                    vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
-                else
-                    vscode.window.showErrorMessage("Paket failed", "Show")
-                    |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
-                    |> ignore)
-            |> ignore
+                Process.spawnWithNotification location "mono" cmd outputChannel
+                |> Process.onExit(fun (code) ->
+                    startedMessage.dispose() |> ignore
+                    if code.ToString() ="0" then
+                        vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
+                    else
+                        vscode.window.showErrorMessage("Paket failed", "Show")
+                        |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                        |> ignore)
+                |> ignore
+                Promise.empty)
         ) |> ignore
 
-let private execPaket cmd =
+let private execPaket cmd = promise {
     if workspace.rootPath <> null then
-        if not (fs.existsSync location) then
-            Process.exec bootstrapperLocation "mono" ""
-            |> Promise.bind (fun _ -> Process.exec location "mono" cmd)
-        else
-        Process.exec location "mono" cmd
+        let! _ = UpdatePaketSilent ()
+        return! runWithPaketLocation (fun location ->
+            Process.exec location "mono" cmd)
     else
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
-        Promise.reject "Paket can be run only if folder is open"
+        return! Promise.reject "Paket can be run only if folder is open"
+}
 
 let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
     if(stdout.toString() = "") then
