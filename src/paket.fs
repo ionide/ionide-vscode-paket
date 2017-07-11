@@ -326,16 +326,39 @@ let private createDependenciesProvider () =
                 } |> Case2
     }
 
+type InstalledPackage = {
+    group: string
+    name: string
+    version: string
+}
+
+let parsePaketList (lines: string[]) =
+    seq {
+        for line in lines do
+            let parts = line.Trim().Split(' ')
+            if parts.Length = 4 then
+                yield {
+                    group = parts.[0]
+                    name = parts.[1]
+                    version = parts.[3]
+                }
+    }
+
 let private createReferencesProvider () =
     {   new CompletionItemProvider
         with
             member this.provideCompletionItems(doc, pos, ct) =
-                "show-installed-packages -s"
-                |> execPaket
-                |> Promise.map (handlePaketList)
-                |> Promise.map (Seq.map(fun n -> n.Trim().Split(' ').[1] |> CompletionItem ))
-                |> Promise.map (ResizeArray)
-                |> Case2
+                promise {
+                    let! executionResult = "show-installed-packages -s" |> execPaket
+                    let installedPackages = handlePaketList executionResult |> parsePaketList
+                    return seq {
+                        for (name, inGroups) in Seq.groupBy (fun p -> p.name) installedPackages do
+                            let groups = String.Join(",", Seq.map (fun p -> p.group) inGroups)
+                            let item = CompletionItem name
+                            item.detail <- groups
+                            yield item
+                    } |> ResizeArray
+                } |> Case2
 
             member this.resolveCompletionItem(sug, ct) =
                 promise {
