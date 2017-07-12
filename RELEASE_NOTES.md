@@ -1,3 +1,6 @@
+### 1.7.2 - 12.07.2017
+* Add `clitool` to grammar
+
 ### 1.7.1 - 29.06.2017
 * Search binaries also in the root of the workspace
 
