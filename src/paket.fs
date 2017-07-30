@@ -59,6 +59,13 @@ let UpdatePaketSilent () =
     | Some path -> Process.exec path "mono" ""
     | None -> Promise.empty
 
+let UpdatePaket () =
+    match getBootstrapperPath () with
+    | Some path ->
+        Process.spawnWithNotification path "mono" "" outputChannel
+        |> Process.toPromise
+    | None -> Promise.empty
+
 let runWithPaketLocation f =
     match getPaketPath () with
     | Some location ->
@@ -72,7 +79,7 @@ let private spawnPaket cmd =
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
     else
-        UpdatePaketSilent ()
+        UpdatePaket ()
         |> Promise.bind (fun _ ->
             runWithPaketLocation (fun location ->
                 outputChannel.clear ()
@@ -95,7 +102,7 @@ let private spawnPaket cmd =
 
 let private execPaket cmd = promise {
     if workspace.rootPath <> null then
-        let! _ = UpdatePaketSilent ()
+        let! _ = UpdatePaket ()
         return! runWithPaketLocation (fun location ->
             Process.exec location "mono" cmd)
     else
@@ -278,7 +285,7 @@ let private createDependenciesProvider () =
                         | PaketTag "nuget" -> send word
                         | PaketTag "source" -> [ "https://api.nuget.org/v3/index.json"; "https://nuget.org/api/v2" ] |> concatAndLift
                         | PaketTag "framework:" ->
-                            [ 
+                            [
                                 "net35"
                                 "net40"
                                 "net45"
