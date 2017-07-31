@@ -1,3 +1,7 @@
+### 1.7.3 - 30.07.2017
+* Update bootstrapper version
+* Print out bootstrapper output to output channel
+
 ### 1.7.2 - 12.07.2017
 * Add `clitool` to grammar
 
