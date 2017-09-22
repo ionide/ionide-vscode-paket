@@ -2,8 +2,8 @@
 // FAKE build script
 // --------------------------------------------------------------------------------------
 
-#I "packages/FAKE/tools"
-#r "packages/FAKE/tools/FakeLib.dll"
+#I "packages/build/FAKE/tools"
+#r "packages/build/FAKE/tools/FakeLib.dll"
 open System
 open System.Diagnostics
 open System.IO
@@ -12,6 +12,7 @@ open Fake.Git
 open Fake.ProcessHelper
 open Fake.ReleaseNotesHelper
 open Fake.ZipHelper
+open Fake.YarnHelper
 
 
 // Git configuration (used for publishing documentation in gh-pages branch)
@@ -53,17 +54,17 @@ let pickTool unixPath winPath =
     | true -> unixPath
     | _    -> winPath
 
+let platformTool tool path =
+    match isUnix with
+    | true -> tool
+    | _ ->  match ProcessHelper.tryFindFileOnPath path with
+            | None -> failwithf "can't find tool %s on PATH" tool
+            | Some v -> v
+
 let npmTool =
-    pickTool
-        "/usr/local/bin/npm"
-        __SOURCE_DIRECTORY__ </> "packages/Npm.js/tools/npm.cmd"
+    platformTool "npm"  "npm.cmd"
 
-let vsceTool =
-    pickTool
-        "vsce"
-        "packages" </> "Node.js" </> "vsce.cmd" |> FullName
-
-
+let vsceTool = lazy (platformTool "vsce" "vsce.cmd")
 
 let codeTool =
     pickTool
@@ -81,9 +82,22 @@ Target "Clean" (fun _ ->
     CopyFile "release/CHANGELOG.md" "RELEASE_NOTES.md"
 )
 
-Target "Build" ( fun _ ->
-    run npmTool "install" "release"
-    run npmTool "run build" "release"
+Target "YarnInstall" <| fun () ->
+    Yarn (fun p -> { p with Command = Install Standard })
+
+Target "DotNetRestore" <| fun () ->
+    DotNetCli.Restore (fun p -> { p with WorkingDir = "src" } )
+
+let runFable additionalArgs =
+    let cmd = "fable webpack -- --config ../webpack.config.js " + additionalArgs
+    DotNetCli.RunCommand (fun p -> { p with WorkingDir = "src" } ) cmd
+
+Target "Build" (fun _ ->
+    runFable ""
+)
+
+Target "Watch" (fun _ ->
+    runFable "--watch"
 )
 
 let fsgrammarDir = "paket-files/github.com/ionide/ionide-fsgrammar/grammar"
@@ -117,7 +131,7 @@ Target "SetVersion" (fun _ ->
 
 Target "BuildPackage" ( fun _ ->
     killProcess "vsce"
-    run vsceTool "package" "release"
+    run vsceTool.Value "package" "release"
     !! "release/*.vsix"
     |> Seq.iter(MoveFile "./temp/")
 )
@@ -134,10 +148,10 @@ Target "PublishToGallery" ( fun _ ->
         | _ -> getUserPassword "VSCE Token: "
 
     killProcess "vsce"
-    run vsceTool (sprintf "publish --pat %s" token) "release"
+    run vsceTool.Value (sprintf "publish --pat %s" token) "release"
 )
 
-#load "paket-files/fsharp/FAKE/modules/Octokit/Octokit.fsx"
+#load "paket-files/build/fsharp/FAKE/modules/Octokit/Octokit.fsx"
 open Octokit
 
 Target "ReleaseGitHub" (fun _ ->
@@ -178,6 +192,12 @@ Target "ReleaseGitHub" (fun _ ->
 
 Target "Default" DoNothing
 Target "Release" DoNothing
+
+"YarnInstall" ?=> "Build"
+"DotNetRestore" ?=> "Build"
+
+"YarnInstall" ==> "Default"
+"DotNetRestore" ==> "Default"
 
 "Clean"
   ==> "Build"

@@ -1,62 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Name />
-    <AssemblyName>Ionide.Paket</AssemblyName>
-    <RootNamespace>Ionide.Paket</RootNamespace>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <SchemaVersion />
-    <ProjectGuid>d1081029-2369-4daa-9f33-2353c5c9ed02</ProjectGuid>
-    <ProjectType />
-    <OutputType>Exe</OutputType>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-    <AutoGenerateBindingRedirects />
-    <TargetFSharpCoreVersion />
-    <DocumentationFile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>Full</DebugType>
-    <Optimize>false</Optimize>
-    <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG</DefineConstants>
-    <WarningLevel />
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit />
-    <OtherFlags />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType>None</DebugType>
-    <Optimize>true</Optimize>
-    <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release</OutputPath>
-    <DefineConstants />
-    <WarningLevel />
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit />
-    <OtherFlags />
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-
-    <Reference Include="Fable.Core">
-      <HintPath>../release/node_modules/fable-core/Fable.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\paket-files\Ionide\ionide-vscode-helpers\Fable.Import.VSCode.fs">
+    <Compile Include="..\paket-files\Ionide\ionide-vscode-helpers\src\Fable.Import.VSCode.fs">
       <Paket>True</Paket>
       <Link>paket-files/Fable.Import.VSCode.fs</Link>
     </Compile>
-    <Compile Include="..\paket-files\Ionide\ionide-vscode-helpers\Helpers.fs">
+    <Compile Include="..\paket-files\Ionide\ionide-vscode-helpers\src\Helpers.fs">
       <Paket>True</Paket>
       <Link>paket-files/Helpers.fs</Link>
     </Compile>
@@ -64,10 +15,5 @@
   <ItemGroup>
     <Compile Include="paket.fs" />
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
-    <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-  </PropertyGroup>
-  <Import Project="$(FSharpTargetsPath)" />
-
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

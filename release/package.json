@@ -145,16 +145,6 @@
 		"onCommand:paket.UpdatePaketToPrerelease",
 		"onCommand:paket.GenerateIncludeScripts"
 	],
-	"scripts": {
-		"build": "fable ../src/Ionide.Paket.fsproj -s -o ../release -m commonjs"
-	},
-	"devDependencies": {
-		"vscode": "*",
-		"fable-compiler": "0.6.x"
-	},
 	"dependencies": {
-		"path": "*",
-        "toml":"*",
-		"fable-core": "0.6.x"
 	}
 }

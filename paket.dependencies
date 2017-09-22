@@ -1,13 +1,19 @@
 source https://nuget.org/api/v2
+storage:none
 
+clitool dotnet-fable
+nuget Fable.Core
+nuget Fable.Import.Node
+nuget FSharp.Core
 
-git https://github.com/ionide/ionide-vscode-helpers.git master build:"build.cmd"
 git https://github.com/ionide/ionide-fsgrammar.git master
 
-nuget FAKE
-nuget Npm.js
+github Ionide/ionide-vscode-helpers src/Fable.Import.VSCode.fs
+github Ionide/ionide-vscode-helpers src/Helpers.fs
 
-github fsharp/FAKE modules/Octokit/Octokit.fsx
+group Build
+    source https://www.nuget.org/api/v2
 
-github Ionide/ionide-vscode-helpers:master Fable.Import.VSCode.fs
-github Ionide/ionide-vscode-helpers:master Helpers.fs
+    nuget FAKE
+
+    github fsharp/FAKE modules/Octokit/Octokit.fsx

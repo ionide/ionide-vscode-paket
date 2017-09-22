@@ -7,7 +7,7 @@ open System.Text.RegularExpressions
 open Fable.Core
 open Fable.Import
 open Fable.Import.Node
-open Fable.Import.Node.child_process_types
+open Fable.Import.Node.ChildProcess
 open Fable.Core.JsInterop
 
 open Ionide.VSCode
@@ -41,7 +41,7 @@ let potentialDirectories =
 let findBinary name =
     potentialDirectories
     |> List.map (fun dir -> dir </> name)
-    |> List.tryFind fs.existsSync
+    |> List.tryFind (U2.Case1 >> Fs.existsSync)
 
 let pluginPaket = pluginBinPath </> "paket.exe"
 let pluginBootstrapper = pluginBinPath </> "paket.bootstrapper.exe"
@@ -75,7 +75,7 @@ let runWithPaketLocation f =
         |> Promise.bind (fun _ -> Promise.reject "Unable to find paket.exe")
 
 let private spawnPaket cmd =
-    if workspace.rootPath = null then
+    if isNull workspace.rootPath then
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
     else
@@ -111,11 +111,11 @@ let private execPaket cmd = promise {
         return! Promise.reject "Paket can be run only if folder is open"
 }
 
-let private handlePaketList (error : Error, stdout : Buffer, stderr : Buffer) =
-    if(stdout.toString() = "") then
+let private handlePaketList (error : ChildProcess.ExecError option, stdout : string, stderr : string) =
+    if(stdout = "") then
         [||]
     else
-        stdout.toString().Split('\n')
+        stdout.Split('\n')
         |> Array.filter((<>) "" )
 
 let Init () = "init" |> spawnPaket
@@ -251,7 +251,7 @@ let private createDependenciesProvider () =
     let rec send (cmd : string) =
         if not busy then
             busy <- true
-            proc.stdin?write $ (cmd + "\n")
+            proc.stdin?write $ (cmd + "\n") |> ignore
             Promise.create (fun res rej ->
                 resolve <- Some res
                 reject <- Some rej )
@@ -326,12 +326,12 @@ let private createDependenciesProvider () =
                         response.Split '\n'
                         |> Seq.map(fun n -> CompletionItem <| n.Trim())
                         |> ResizeArray
-                } |> Case2
+                } |> U2.Case2
 
             member this.resolveCompletionItem(sug, ct) =
                 promise {
                     return sug
-                } |> Case2
+                } |> U2.Case2
     }
 
 type InstalledPackage = {
@@ -366,12 +366,12 @@ let private createReferencesProvider () =
                             item.detail <- groups
                             yield item
                     } |> ResizeArray
-                } |> Case2
+                } |> U2.Case2
 
             member this.resolveCompletionItem(sug, ct) =
                 promise {
                     return sug
-                } |> Case2
+                } |> U2.Case2
     }
 
 let private saveHandler (doc : TextDocument) =
@@ -381,11 +381,10 @@ let private saveHandler (doc : TextDocument) =
     if (doc.fileName.EndsWith "paket.references" || doc.fileName.EndsWith "paket.dependencies" ) && config then
         Install ()
 
-let activate(context: vscode.ExtensionContext) =
+let activate (context: vscode.ExtensionContext) =
     let registerCommand com (f: unit->unit) =
         vscode.commands.registerCommand(com, unbox<Func<obj,obj>> f)
         |> context.subscriptions.Add
-
 
     let df = createEmpty<DocumentFilter>
     df.language <- Some "paket-dependencies"
