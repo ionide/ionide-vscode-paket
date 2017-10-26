@@ -1,4 +1,4 @@
-### 1.8.0 - 26.10.2017
+### 1.8.1 - 26.10.2017
 * Completions for `storage` and `restriction`
 * Add support for `Why` command
 * Update obsolate Paket API calls
