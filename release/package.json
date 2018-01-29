@@ -48,7 +48,12 @@
 			"title": "Paket: Init"
 		},{
 			"command": "paket.Install",
-			"title": "Paket: Install"
+			"title": "Paket: Install",
+			"icon":
+			{
+				"light": "./images/install-light.svg",
+				"dark": "./images/install-dark.svg"
+			}
 		},{
 			"command": "paket.Update",
 			"title": "Paket: Update"
@@ -57,7 +62,12 @@
 			"title": "Paket: Outdated"
 		},{
 			"command": "paket.Restore",
-			"title": "Paket: Restore"
+			"title": "Paket: Restore",
+			"icon":
+			{
+				"light": "./images/restore-light.svg",
+				"dark": "./images/restore-dark.svg"
+			}
 		},{
 			"command": "paket.AutoRestoreOn",
 			"title": "Paket: AutoRestore On"
@@ -103,6 +113,77 @@
 			"command": "paket.UpdatePaketToPrerelease",
 			"title": "Paket: Use Paket prerelease"
 		}],
+		"menus": {
+			"editor/title": [
+				{
+					"command":"paket.Restore",
+					"when": "editorLangId == 'paket-references'",
+					"group": "navigation"
+				},
+				{
+					"command":"paket.Restore",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "navigation"
+				},
+				{
+					"command":"paket.Install",
+					"when": "editorLangId == 'paket-references'",
+					"group": "navigation"
+				},
+				{
+					"command":"paket.Install",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "navigation"
+				}
+			],
+			"editor/context": [
+				{
+					"command":"paket.Restore",
+					"when": "editorLangId == 'paket-references'",
+					"group": "21_paketMain"
+				},
+				{
+					"command":"paket.Restore",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "21_paketMain"
+				},
+				{
+					"command":"paket.Install",
+					"when": "editorLangId == 'paket-references'",
+					"group": "21_paketMain"
+				},
+				{
+					"command":"paket.Install",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "21_paketMain"
+				},
+				{
+					"command":"paket.Add",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "22_paketEditFile"
+				},
+				{
+					"command":"paket.UpdatePackage",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "22_paketEditFile"
+				},
+				{
+					"command":"paket.RemovePackage",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "22_paketEditFile"
+				},
+				{
+					"command":"paket.Why",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "23_paketOther"
+				},
+				{
+					"command":"paket.GenerateLoadScripts",
+					"when": "editorLangId == 'paket-dependencies'",
+					"group": "23_paketOther"
+				}
+			]
+		},
 		"outputChannels": [
 			"Paket"
 		],
