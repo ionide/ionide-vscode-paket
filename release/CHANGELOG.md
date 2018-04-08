@@ -1,3 +1,7 @@
+### 1.10.0 - 08.04.2018
+* Fix casing for NuGet
+* Refresh with new version of bootstrapper.exe
+
 ### 1.9.1 - 29.01.2018
 * Add icons & menus to paket files
 
