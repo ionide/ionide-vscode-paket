@@ -88,7 +88,7 @@ let private spawnPaket cmd =
                 if getConfig () then outputChannel.show ()
 
                 Process.spawnWithNotification location "mono" cmd outputChannel
-                |> Process.onExit(fun (code) ->
+                |> Process.onExit(fun code _ ->
                     startedMessage.dispose() |> ignore
                     if code.ToString() ="0" then
                         vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
