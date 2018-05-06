@@ -1,4 +1,4 @@
-### 1.10.0 - 08.04.2018
+### 1.11.0 - 06.05.2018
 * Fix casing for NuGet
 * Refresh with new version of bootstrapper.exe
 
