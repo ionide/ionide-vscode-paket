@@ -284,7 +284,7 @@ let private createDependenciesProvider () =
                         let concatAndLift = String.concat "\n" >> Promise.lift
                         match tags with
                         | [ _ ] ->
-                            ["nuget"; "git"; "github"; "http"; "gist"; "clitool"; "versions"; "source"; "group"
+                            ["nuget"; "git"; "github"; "http"; "gist"; "clitool"; "versions"; "source"; "version"; "group"
                              "references: strict"; "framework:"; "content: none"; "copy_content_to_output_dir: always"
                              "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"; "generate_load_scripts"
                              "restriction:" ]
