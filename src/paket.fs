@@ -286,7 +286,7 @@ let private createDependenciesProvider () =
                         | [ _ ] ->
                             ["nuget"; "git"; "github"; "http"; "gist"; "clitool"; "versions"; "source"; "group"
                              "references: strict"; "framework:"; "content: none"; "copy_content_to_output_dir: always"
-                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "lowest_matching:"; "generate_load_scripts"
+                             "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "storage:"; "lowest_matching:"; "generate_load_scripts"
                              "restriction:" ]
                             |> concatAndLift
                         | PaketTag "nuget" -> send word
@@ -323,6 +323,7 @@ let private createDependenciesProvider () =
                                 |> concatAndLift
                         | PaketTag "redirects:" -> [ "on"; "off"; "force" ] |> concatAndLift
                         | PaketTag "strategy:" -> [ "min"; "max" ] |> concatAndLift
+                        | PaketTag "storage:" -> [ "none"; "symlink" ] |> concatAndLift
                         | PaketTag "generate_load_scripts:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "lowest_matching:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "import_targets:" -> [ "true"; "false" ] |> concatAndLift
