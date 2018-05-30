@@ -1,3 +1,7 @@
+### 1.11.1 - 30.05.2018
+* Add version and storage to autocomplete
+* Grammar fixes
+
 ### 1.11.0 - 06.05.2018
 * Fix casing for NuGet
 * Refresh with new version of bootstrapper.exe
