@@ -1,3 +1,8 @@
+### 1.12.0 - 07.07.2018
+* Use Paket stable and update Paket bootstrapper.
+* Suggest only the latest TFMs.
+* Support running in magic mode.
+
 ### 1.11.1 - 30.05.2018
 * Add version and storage to autocomplete
 * Grammar fixes
