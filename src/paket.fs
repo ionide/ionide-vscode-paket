@@ -40,7 +40,7 @@ let potentialDirectories =
 let findBinary name =
     potentialDirectories
     |> List.map (fun dir -> dir </> name)
-    |> List.tryFind (U2.Case1 >> Fs.existsSync)
+    |> List.tryFind (U2.Case1 >> fs.existsSync)
 
 let pluginPaket = pluginBinPath </> "paket.exe"
 let pluginBootstrapper = pluginBinPath </> "paket.bootstrapper.exe"

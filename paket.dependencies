@@ -1,9 +1,9 @@
 source https://nuget.org/api/v2
 storage:none
 
-clitool dotnet-fable 1.2.4
-nuget Fable.Core 1.2.4
-nuget Fable.Import.Node 0.1.5
+clitool dotnet-fable
+nuget Fable.Core
+nuget Fable.Import.Node
 nuget FSharp.Core
 
 git https://github.com/ionide/ionide-fsgrammar.git master
