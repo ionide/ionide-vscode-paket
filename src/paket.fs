@@ -18,39 +18,27 @@ let (</>) a b =
     then a + @"\" + b
     else a + "/" + b
 
-let localPaketDir = vscode.workspace.rootPath </> ".paket"
 
 let isProject (fileName:string) = fileName.EndsWith(".fsproj") || fileName.EndsWith(".csproj") || fileName.EndsWith(".vbproj")
 
-let pluginPath =
-    try
-        VSCode.getPluginPath "Ionide.ionide-paket"
-    with
-    | _ ->
-        VSCode.getPluginPath "Ionide.Ionide-Paket"
-
-let pluginBinPath = pluginPath </> "bin"
-
-let getEnvVar var =
-    match Environment.GetEnvironmentVariable(var) with
-    | null -> None
-    | value -> Some value
 
 // See https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools#install-a-global-tool for Windows and Linux/macOS values
-let addGlobalToolPath list =
+let globalToolPath  =
     let getGlobalToolSubPath root =
         root </> ".dotnet" </> "tools"
     let pathOption  =
         match Process.isWin() with
         | true  ->
-            getEnvVar "USERPROFILE"
+            Globals.``process``.env?``USERPROFILE``
+            |> unbox<string>
+            |> Option.ofObj
             |> Option.map getGlobalToolSubPath
         | false  ->
-            getEnvVar "HOME"
+            Globals.``process``.env?``HOME``
+            |> unbox<string>
+            |> Option.ofObj
             |> Option.map getGlobalToolSubPath
     pathOption
-    |> Option.map (fun p -> p :: list)
-    |> Option.defaultValue list
 
 let potentialDirectories =
     [
@@ -60,13 +48,40 @@ let potentialDirectories =
 
 let findBinary name =
     potentialDirectories
-    |> addGlobalToolPath
     |> List.map (fun dir -> dir </> name)
     |> List.tryFind (U2.Case1 >> fs.existsSync)
 
-let pluginPaket = pluginBinPath </> "paket.exe"
-let pluginBootstrapper = pluginBinPath </> "paket.bootstrapper.exe"
-let getPaketPath () = findBinary "paket.exe" // The paket.exe we want is not in the plugin folder.
+type PaketType =
+    | Old of string
+    | Global
+    | LocalTool
+
+let getPaketPath () =
+    let checkGlobal () =
+        match globalToolPath with
+        | Some toolPath ->
+            let fn = if Process.isWin () then "paket.exe" else "paket"
+            let path = toolPath </> fn
+            if fs.existsSync !^ path then
+                Some Global
+            else
+                None
+        | None ->
+            None
+
+    match findBinary "paket.exe" with
+    | Some s -> Some (Old s) // The paket.exe in workspace
+    | None ->
+        let configPath = vscode.workspace.rootPath </> ".config" </> "dotnet-tools.json"
+        if fs.existsSync !^ configPath then
+            let file = (fs.readFileSync configPath).toString()
+            if file.Contains "paket" then
+                Some LocalTool
+            else
+                checkGlobal ()
+        else
+            checkGlobal ()
+
 let getBootstrapperPath () = findBinary "paket.bootstrapper.exe"
 
 let outputChannel = vscode.window.createOutputChannel "Paket"
@@ -75,58 +90,106 @@ let getConfig () =
     let cfg = vscode.workspace.getConfiguration()
     cfg.get ("Paket.autoshow", true)
 
-let UpdatePaket () =
+let UpdatePaketIfNeeded () =
     match getBootstrapperPath (), getPaketPath () with
     | Some bootstrapperPath, _ ->
         outputChannel.appendLine ("Paket bootstrapper exists at " + bootstrapperPath)
         Process.spawnWithNotification bootstrapperPath "mono" "" outputChannel
         |> Process.toPromise
-    | None, Some paketPath ->
+    | None, Some (Old paketPath) ->
         outputChannel.appendLine ("Paket is in magic mode. Location: " + paketPath)
         Promise.empty
+    | None, Some (Global) ->
+        outputChannel.appendLine ("Paket is used as global tool.")
+        Promise.empty
+    | None, Some (LocalTool) ->
+        outputChannel.appendLine ("Paket is used as local tool.")
+        Promise.empty
     | None, None ->
-        window.showErrorMessage ("Neither Paket nor its bootstrapper were found. It is suggested that you download the Paket bootstrapper and save it as .paket/paket.exe")
+        window.showErrorMessage ("Neither Paket nor its bootstrapper were found. Install paket as local or global tool with `dotnet` CLI")
         |> Promise.bind (fun _ -> Promise.empty)
 
-let runWithPaketLocation f =
+let runWithPaketLocation oldHandler globalHandler localHandler =
     match getPaketPath () with
-    | Some location ->
-        f location
+    | Some (Old location) ->
+        oldHandler location
+    | Some LocalTool ->
+        localHandler ()
+    | Some Global ->
+        globalHandler ()
     | None ->
-        vscode.window.showErrorMessage "Unable to find paket.exe"
-        |> Promise.bind (fun _ -> Promise.reject "Unable to find paket.exe")
+        vscode.window.showErrorMessage "Unable to find Paket"
+        |> Promise.bind (fun _ -> Promise.reject "Unable to find Paket")
 
 let private spawnPaket cmd =
     if isNull workspace.rootPath then
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
     else
-        UpdatePaket ()
+        UpdatePaketIfNeeded ()
         |> Promise.bind (fun _ ->
-            runWithPaketLocation (fun location ->
-                outputChannel.clear ()
-                outputChannel.appendLine (location)
-                let startedMessage = vscode.window.setStatusBarMessage "Paket started"
-                if getConfig () then outputChannel.show ()
+            runWithPaketLocation
+                (fun location ->
+                    outputChannel.clear ()
+                    outputChannel.appendLine (location)
+                    let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+                    if getConfig () then outputChannel.show ()
 
-                Process.spawnWithNotification location "mono" cmd outputChannel
-                |> Process.onExit(fun code _ ->
-                    startedMessage.dispose() |> ignore
-                    if code.ToString() ="0" then
-                        vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
-                    else
-                        vscode.window.showErrorMessage("Paket failed", "Show")
-                        |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
-                        |> ignore)
-                |> ignore
-                Promise.empty)
+                    Process.spawnWithNotification location "mono" cmd outputChannel
+                    |> Process.onExit(fun code _ ->
+                        startedMessage.dispose() |> ignore
+                        if code.ToString() ="0" then
+                            vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
+                        else
+                            vscode.window.showErrorMessage("Paket failed", "Show")
+                            |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                            |> ignore)
+                    |> ignore
+                    Promise.empty)
+                (fun _ ->
+                    outputChannel.clear ()
+                    outputChannel.appendLine ("Running paket as global tool")
+                    let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+                    if getConfig () then outputChannel.show ()
+
+                    Process.spawnWithNotification "paket" "" cmd outputChannel
+                    |> Process.onExit(fun code _ ->
+                        startedMessage.dispose() |> ignore
+                        if code.ToString() ="0" then
+                            vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
+                        else
+                            vscode.window.showErrorMessage("Paket failed", "Show")
+                            |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                            |> ignore)
+                    |> ignore
+                    Promise.empty
+                )
+                (fun _ ->
+                    outputChannel.clear ()
+                    outputChannel.appendLine ("Running paket as local tool")
+                    let startedMessage = vscode.window.setStatusBarMessage "Paket started"
+                    if getConfig () then outputChannel.show ()
+
+                    Process.spawnWithNotification "dotnet" "" ("paket " + cmd) outputChannel
+                    |> Process.onExit(fun code _ ->
+                        startedMessage.dispose() |> ignore
+                        if code.ToString() ="0" then
+                            vscode.window.setStatusBarMessage ("Paket completed", 10000.0) |> ignore
+                        else
+                            vscode.window.showErrorMessage("Paket failed", "Show")
+                            |> Promise.map (fun n -> if n = "Show" then outputChannel.show () )
+                            |> ignore)
+                    |> ignore
+                    Promise.empty)
         ) |> ignore
 
 let private execPaket cmd = promise {
     if isNull workspace.rootPath |> not then
-        let! _ = UpdatePaket ()
-        return! runWithPaketLocation (fun location ->
-            Process.exec location "mono" cmd)
+        let! _ = UpdatePaketIfNeeded ()
+        return! runWithPaketLocation
+                    (fun location -> Process.exec location "mono" cmd)
+                    (fun _ -> Process.exec "paket" "" cmd)
+                    (fun _ -> Process.exec "dotnet" "" ("paket " + cmd))
     else
         window.showErrorMessage("Paket can be run only if folder is open")
         |> ignore
@@ -240,55 +303,8 @@ let RemovePackageCurrent () =
     else
         vscode.window.showErrorMessage "project file needs to be opened" |> ignore
 
-let UpdatePaketToAlpha () =
-    Process.spawn pluginBootstrapper "mono" "prerelease" |> ignore
-
-[<Emit("setTimeout($0,$1)")>]
-let setTimeout(cb, delay) : obj = failwith "JS Only"
 
 let private createDependenciesProvider () =
-    let mutable resolve : (string -> unit) option = Some ignore
-    let mutable reject : (string -> unit) option = Some ignore
-    let mutable answer = ""
-    let mutable busy = true
-
-    let proc =
-        Process.spawn pluginPaket "mono" "find-packages"
-        |> Process.onOutput (fun n ->
-            resolve |> Option.iter (fun res ->
-                let output = n.ToString()
-                answer <- answer + output
-                if answer.Contains "Please enter search text" then
-                    res answer
-                    resolve <- None
-                    reject <- None
-                    answer <- ""
-                    busy <-false ))
-        |> Process.onErrorOutput (fun n ->
-            reject |> Option.iter (fun rej ->
-                let output = n.ToString()
-                rej answer
-                resolve <- None
-                reject <- None
-                answer <- ""
-                busy <-false ))
-
-    let delay ms =
-        Promise.create(fun res rej -> setTimeout(res, ms) |> ignore )
-
-    let rec send (cmd : string) =
-        if not busy then
-            busy <- true
-            proc.stdin?write $ (cmd + "\n") |> ignore
-            Promise.create (fun res rej ->
-                resolve <- Some res
-                reject <- Some rej )
-        else
-            delay 100
-            |> Promise.bind (fun _ -> send cmd)
-
-
-
     {   new CompletionItemProvider
         with
             member this.provideCompletionItems(doc, pos, ct) =
@@ -311,7 +327,7 @@ let private createDependenciesProvider () =
                              "import_targets:"; "copy_local:"; "redirects:"; "strategy:"; "storage:"; "lowest_matching:"; "generate_load_scripts"
                              "restriction:" ]
                             |> concatAndLift
-                        | PaketTag "nuget" -> send word
+                        // | PaketTag "nuget" -> send word
                         | PaketTag "source" -> [ "https://api.nuget.org/v3/index.json"; "https://nuget.org/api/v2" ] |> concatAndLift
                         | PaketTag "framework:" ->
                             [
@@ -434,4 +450,3 @@ let activate (context: vscode.ExtensionContext) =
     registerCommand "paket.RemovePackageCurrent" RemovePackageCurrent
     registerCommand "paket.GenerateLoadScripts" GenerateLoadScripts
 
-    registerCommand "paket.UpdatePaketToPrerelease" UpdatePaketToAlpha
