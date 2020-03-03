@@ -71,3 +71,5 @@ issueList.md
 
 # Grammar files come from another repository
 /release/grammar/*.json
+
+.ionide
