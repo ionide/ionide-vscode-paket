@@ -1,6 +1,6 @@
 {
 	"name": "Ionide-Paket",
-	"version": "1.12.0",
+	"version": "2.0.0",
 	"publisher": "Ionide",
 	"description": "Paket (alternative NuGet client) Support",
 	"categories":[
@@ -108,10 +108,6 @@
 		{
 			"command": "paket.GenerateLoadScripts",
 			"title": "Paket: Generate Load Scripts"
-		},
-		{
-			"command": "paket.UpdatePaketToPrerelease",
-			"title": "Paket: Use Paket prerelease"
 		}],
 		"menus": {
 			"editor/title": [

@@ -1,3 +1,6 @@
+### 2.0.0 - 03.03.2020
+* Add support for .Net Core Paket - support both local and global tool
+
 ### 1.12.0 - 07.07.2018
 * Use Paket stable and update Paket bootstrapper.
 * Suggest only the latest TFMs.
