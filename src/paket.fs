@@ -335,18 +335,20 @@ let private createDependenciesProvider () =
                                 "net40"
                                 "net472"
                                 "netstandard2.0"
+                                "netstandard2.1"
                                 "netcoreapp2.1"
+                                "netcoreapp3.0"
+                                "netcoreapp3.1"
                                 "uap10.0"
                                 "auto-detect" ]
                                 |> concatAndLift
                         | PaketTag "redirects:" -> [ "on"; "off"; "force" ] |> concatAndLift
                         | PaketTag "strategy:" -> [ "min"; "max" ] |> concatAndLift
-                        | PaketTag "storage:" -> [ "none"; "symlink" ] |> concatAndLift
+                        | PaketTag "storage:" -> [ "none"; "symlink"; "packages" ] |> concatAndLift
                         | PaketTag "generate_load_scripts:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "lowest_matching:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "import_targets:" -> [ "true"; "false" ] |> concatAndLift
                         | PaketTag "copy_local:" -> [ "true"; "false" ] |> concatAndLift
-                        | PaketTag "storage:" -> [ "none"; "packages" ] |> concatAndLift
                         | _ -> Promise.lift ""
                     return
                         response.Split '\n'
